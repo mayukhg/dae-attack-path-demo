@@ -179,7 +179,7 @@ export default function Dashboard() {
          )}
       </div>
 
-      {/* Dynamic Right Panel Rendering - 60/40 Split Enforced in Agent Mode */}
+      {/* Dynamic Right Panel Rendering - 100% Split Enforced in Agent Mode */}
       {isAgenticMode ? (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
            <AgentDaeChat 
@@ -187,7 +187,6 @@ export default function Dashboard() {
              onAction={triggerGraphAnimation} 
              setSharedState={(s) => setSharedState(prev => ({...prev, ...s}))} 
            />
-           <LiveMetrics {...sharedState} />
         </div>
       ) : (
         <ManualDashboard 

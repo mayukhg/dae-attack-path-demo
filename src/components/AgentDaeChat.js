@@ -212,7 +212,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   };
 
   return (
-    <div className="agent-chat-container" style={{ height: '60%' }}>
+    <div className="agent-chat-container" style={{ height: '100%' }}>
       <div className="chat-header">
         <div className="agent-avatar">🤖</div>
         <div style={{fontWeight:600}}>Agent Ecosystem</div>
