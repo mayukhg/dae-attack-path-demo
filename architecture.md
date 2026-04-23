@@ -1,6 +1,6 @@
 # Dynamic Agentic Experience (DAE) - Architectural Overview
 
-This document outlines the high-level architecture of the DAE demonstration application, detailing the interplay between the Next.js framework, the conversational AI interface (Agent DAE), and the dynamic graph engine (React Flow).
+This document outlines the high-level dual-mode architecture of the DAE demonstration application. It details the interplay between the Next.js framework, the foundational React Flow map engine, and the two interchangeable user interaction layers: The **Manual Dashboard** and the **Agent DAE Conversational AI**.
 
 ## Core Technologies
 * **Framework:** Next.js (React) leveraging modern App Router concepts.
@@ -10,52 +10,51 @@ This document outlines the high-level architecture of the DAE demonstration appl
 
 ## System Interaction Diagram
 
-The application is structured to decouple the conversational intent engines from the visual canvas mapping engine. Actions triggered inside the conversational UI dynamically broadcast instructions up to the parent layer, which securely modifies the graph topography.
+The application is structured around a centralized Toggle State situated in the parent Dashboard. Based on `[isAgenticMode]`, the architecture routes events either through a static manual interface, or a dynamic conversational intelligence state-machine.
 
 ```mermaid
 graph TD
-    User([End User]) --> |Nudges Interface| AgentUI[Agent DAE Chat Component]
-    User --> |Views Topography| MapUI[Attack Path Canvas]
+    User([End User]) --> |Switches Mode| ModeToggle(isAgenticMode Toggle)
     
     subgraph Frontend Client Architecture
         Dashboard[page.js Parent Container]
+        ModeToggle --> |Controls Rendering| Dashboard
         
-        Dashboard --> |Renders| MapUI
-        Dashboard --> |Renders| AgentUI
+        Dashboard -.-> |isAgenticMode = false| ManualUI[ManualDashboard.js]
+        Dashboard -.-> |isAgenticMode = true| AgentUI[AgentDaeChat.js]
         
-        AgentUI --> |Emits Event 'init_map'| EventBus(Action Handler Prop)
-        AgentUI --> |Emits Event 'simulate_path'| EventBus
-        AgentUI --> |Emits Event 'secure_path'| EventBus
+        ManualUI --> |Static Ping| EventBus(Action Handler Prop)
+        AgentUI --> |Conversational Trigger| EventBus
         
         EventBus --> |Updates State| DashboardNodes(Nodes Array State)
         EventBus --> |Updates State| DashboardEdges(Edges Array State)
         
         DashboardNodes --> |Injects Changes| ReactFlowEngine[React Flow Graph Library]
         DashboardEdges --> |Injects Changes| ReactFlowEngine
-        ReactFlowEngine --> MapUI
+        
+        ReactFlowEngine --> |Renders| MapUI[Attack Path Canvas]
+        User --> |Views Topography| MapUI
     end
 ```
 
-## Agent Workflows & State Machines
+## Modular Dual-Mode Workflow Mapping
 
-### 1. The Conversational Engine (`AgentDaeChat.js`)
-A highly sophisticated state machine manages the narrative progression seen in the TruConfirm architecture.
+### 1. Manual Dashboard Baseline (`ManualDashboard.js`)
+Serves as the narrative baseline (the old way). It accesses the `React Flow` components by dumping all `initialNodes` immediately onto the canvas without animation. Its triggers (`onSimulate`, `onMitigate`) push brute-force state changes without calculating underlying sub-graphs.
+
+### 2. The Conversational Engine (`AgentDaeChat.js`)
+A highly sophisticated state machine manages narrative progression mimicking the DAE workflow. It translates Attack Path mechanics (e.g., *Path Criticality Score (PCS)*, *Lateral Movement Nexus*) into a chat interface.
 
 ```mermaid
 stateDiagram-v2
     [*] --> Discovery
-    Discovery --> CVE_Selection: Map initialized
-    CVE_Selection --> Scanning: User Selects Vuln
-    Scanning --> Remediation_Options: Scan Completes (Score ↑)
+    Discovery --> Path_Selection: Agent Explores Topography
+    Path_Selection --> Scanning: User Prompts Simulation
+    Scanning --> Remediation_Options: Traversal Completes (PCS ↑)
     Remediation_Options --> Mitigation: User Clicks Mitigate
-    Mitigation --> Resolved: Edges Grayed Out (Score ↓)
+    Mitigation --> Resolved: Path Severed (PCS ↓)
     Resolved --> [*]
 ```
 
-### 2. The Attack Graph Logic
-React Flow uses an absolute coordinate map populated dynamically:
-- **`nodes` array:** Defines entities (UAT, Shadow API, Container Escape). Contains unique stylization tags.
-- **`edges` array:** Maps relationships (`eA-B`). Receives dynamic `animated: true` tags and red stroke styling when the *Simulation* event fires from the Chat UI.
-
 ### Scaling Path Forward
-While currently driving mock states on the frontend using React Hooks, this architecture is fully modularized. If required, the exact event payload logic firing from the chat buttons could instantly be re-routed to real localized `src/app/api/` micro-services parsing Amazon Neptune or Neo4j calculations.
+The `isAgenticMode` centralized state proves that the underlying data (the graphical nodes arrays) is entirely decoupled from the presentation and manipulation layer. It can accept inputs from a static UI table just as easily as an NLP-driven chatbot.
