@@ -45,6 +45,33 @@ const aiEdges = [
   { id: 'eW2-W3', source: 'W2', target: 'W3', animated: false, style: edgeStyling },
 ];
 
+const phase3Nodes = [
+  ...initialNodes,
+  // Path 2
+  { id: 'H', position: { x: -250, y: 50 }, type: 'base', data: { label: 'External DMZ', assetType: 'LOAD BALANCER', icon: '🌐', status: 'normal' } },
+  { id: 'I', position: { x: -250, y: 150 }, type: 'base', data: { label: 'Kubelet Exploit', assetType: 'K8S NODE', icon: '☸️', status: 'normal' } },
+  // Path 3
+  { id: 'J', position: { x: 350, y: 50 }, type: 'base', data: { label: 'Phishing Target', assetType: 'EMPLOYEE LAPTOP', icon: '🎣', status: 'normal' } },
+  { id: 'K', position: { x: 350, y: 150 }, type: 'base', data: { label: 'VPN Access', assetType: 'VPN GATEWAY', icon: '🛡️', status: 'normal' } },
+  // Blast Radius
+  { id: 'BR1', position: { x: 250, y: 250 }, type: 'base', data: { label: 'HR Database', assetType: 'INTERNAL DB', icon: '🗄️', status: 'normal', isBlastRadius: true }, hidden: true },
+  { id: 'BR2', position: { x: 250, y: 150 }, type: 'base', data: { label: 'Finance API', assetType: 'MICROSERVICE', icon: '⚙️', status: 'normal', isBlastRadius: true }, hidden: true },
+];
+
+const phase3Edges = [
+  ...initialEdges.map(e => ({...e})),
+  // Path 2
+  { id: 'eH-I', source: 'H', target: 'I', animated: false, style: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 } },
+  { id: 'eI-D', source: 'I', target: 'D', animated: false, style: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 } },
+  // Path 3
+  { id: 'eJ-K', source: 'J', target: 'K', animated: false, style: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 } },
+  { id: 'eK-F', source: 'K', target: 'F', animated: false, style: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 } },
+  // Blast Radius Edges
+  { id: 'eB-BR1', source: 'B', target: 'BR1', animated: false, style: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }, hidden: true },
+  { id: 'eB-BR2', source: 'B', target: 'BR2', animated: false, style: { stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }, hidden: true },
+];
+
+
 export default function Dashboard() {
   const [isAgenticMode, setIsAgenticMode] = useState(false);
   const [nodes, setNodes] = useState([]);
@@ -173,6 +200,77 @@ export default function Dashboard() {
          return { ...e, animated: false, style: { stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, transition: 'all 1s ease' } };
       }));
     }
+
+    // --- Phase 3 Actions ---
+    if (action === 'init_phase3_map') {
+      setNodes(phase3Nodes);
+      setEdges(phase3Edges);
+    }
+
+    if (action === 'simulate_phase3_path') {
+      setEdges(eds => eds.map(e => {
+        if (['eA-B', 'eB-C', 'eC-F', 'eF-G'].includes(e.id)) {
+           let conf = '90%'; let mitre = 'T1190';
+           if (e.id === 'eB-C') { conf = '88%'; mitre = 'T1505'; }
+           if (e.id === 'eC-F') { conf = '76%'; mitre = 'T1003'; }
+           if (e.id === 'eF-G') { conf = '99%'; mitre = 'T1550'; }
+           return { ...e, animated: true, style: { stroke: '#ef4444', strokeWidth: 2 }, label: `${mitre} (${conf})`, labelStyle: { fill: '#cbd5e1', fontWeight: 600, fontSize: 10 }, labelBgStyle: { fill: '#1e293b' } };
+        }
+        return e;
+      }));
+      setTimeout(() => {
+        setNodes(nds => nds.map(n => {
+           if (['B', 'C', 'F', 'G'].includes(n.id)) 
+               return { ...n, data: { ...n.data, status: 'compromised' } };
+           return n;
+        }));
+      }, 1000);
+    }
+
+    if (action === 'simulate_blast_radius') {
+      setNodes(nds => nds.map(n => {
+         if (n.data?.isBlastRadius) {
+            return { ...n, hidden: false, data: { ...n.data, status: 'compromised' } };
+         }
+         return n;
+      }));
+      setEdges(eds => eds.map(e => {
+         if (['eB-BR1', 'eB-BR2'].includes(e.id)) {
+            return { ...e, hidden: false, animated: true, style: { stroke: '#f59e0b', strokeWidth: 2 } };
+         }
+         return e;
+      }));
+    }
+
+    if (action === 'secure_phase3_path') {
+      setNodes(nds => nds.map(n => {
+        if (n.id === 'B') return { ...n, data: { ...n.data, status: 'secured', label: 'Shadow API (BLOCKED)' } };
+        if (n.data?.isBlastRadius) return { ...n, data: { ...n.data, status: 'normal' } };
+        if (['C', 'F', 'G'].includes(n.id)) return { ...n, data: { ...n.data, status: 'normal' } };
+        return n;
+      }));
+      setEdges(eds => eds.map(e => {
+         if (e.id === 'eA-B') return { ...e, animated: false, style: { stroke: '#10b981', strokeWidth: 2, transition: 'all 1s ease' }, label: '' };
+         if (['eB-BR1', 'eB-BR2'].includes(e.id)) return { ...e, hidden: true };
+         if (['eB-C', 'eC-F', 'eF-G'].includes(e.id)) return { ...e, animated: false, style: { stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 }, label: '' };
+         return e;
+      }));
+    }
+
+    if (action === 'simulate_bypass') {
+      const bypassEdge = { 
+         id: 'eBypass', source: 'A', target: 'C', animated: true, 
+         style: { stroke: '#ef4444', strokeWidth: 2, strokeDasharray: '5,5' }, 
+         label: 'Attempting Bypass (T1059)', labelStyle: { fill: '#ef4444', fontWeight: 600, fontSize: 10 }, labelBgStyle: { fill: '#1e293b' } 
+      };
+      setEdges(eds => [...eds, bypassEdge]);
+      setTimeout(() => {
+         setEdges(eds => eds.map(e => {
+            if (e.id === 'eBypass') return { ...e, animated: false, style: { stroke: '#64748b', strokeWidth: 1, strokeDasharray: '5,5' }, label: 'Bypass Blocked', labelStyle: { fill: '#64748b' } };
+            return e;
+         }));
+      }, 2500);
+    }
   };
 
   return (
@@ -185,7 +283,24 @@ export default function Dashboard() {
          </div>
       )}
 
-      {/* Visual Attack Path Engine */}
+      {/* Dynamic Left Panel Rendering (Agent Chat or Manual Dashboard) */}
+      {isAgenticMode ? (
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
+           <AgentDaeChat 
+             key={chatKey} 
+             onAction={triggerGraphAnimation} 
+             setSharedState={(s) => setSharedState(prev => ({...prev, ...s}))} 
+           />
+        </div>
+      ) : (
+        <ManualDashboard 
+          phase={manualPhase} 
+          onSimulate={() => triggerGraphAnimation('simulate_path')} 
+          onMitigate={() => triggerGraphAnimation('secure_path')} 
+        />
+      )}
+
+      {/* Visual Attack Path Engine (Right Panel) */}
       <div style={{ position: 'relative', background: 'radial-gradient(circle at 50% 50%, #0f172a 0%, #000000 100%)' }}>
          
          <button onClick={() => toggleMode(false)} className="reset-hover-btn">
@@ -222,23 +337,6 @@ export default function Dashboard() {
            </div>
          )}
       </div>
-
-      {/* Dynamic Right Panel Rendering - 100% Split Enforced in Agent Mode */}
-      {isAgenticMode ? (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-           <AgentDaeChat 
-             key={chatKey} 
-             onAction={triggerGraphAnimation} 
-             setSharedState={(s) => setSharedState(prev => ({...prev, ...s}))} 
-           />
-        </div>
-      ) : (
-        <ManualDashboard 
-          phase={manualPhase} 
-          onSimulate={() => triggerGraphAnimation('simulate_path')} 
-          onMitigate={() => triggerGraphAnimation('secure_path')} 
-        />
-      )}
     </div>
   );
 }
