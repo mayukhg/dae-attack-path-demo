@@ -590,7 +590,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>SIMULATION AGENT</span>
               </div>
               <h4 style={{color:'#ef4444'}}>Lateral Movement & Blast Radius</h4>
-              <p style={{fontSize:'12px', marginTop:'8px'}}>Simulation traversed successfully (T1190 -> T1505 -> T1003 -> T1550). Shadow API breached.</p>
+              <p style={{fontSize:'12px', marginTop:'8px'}}>Simulation traversed successfully (T1190 → T1505 → T1003 → T1550). Shadow API breached.</p>
               <p style={{fontSize:'12px', marginTop:'8px', fontWeight:'bold', color:'#fca5a5'}}>If this path is exploited, the attacker gains access to 14 additional assets including the production HR Database and Finance API.</p>
               <div style={{marginTop:'12px'}}>
                  <h5 style={{color:'#94a3b8', fontSize:'10px', marginBottom:'8px'}}>MULTI-REMEDIATION TRADE-OFFS</h5>
