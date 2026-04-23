@@ -31,8 +31,11 @@ export default function Dashboard() {
       addLog('map', 'Continuous Autonomous Discovery initiated.');
       const interval = setInterval(() => {
         if (currentIdx < NODES.length) {
-          setVisibleNodes(prev => [...prev, NODES[currentIdx].id]);
-          addLog('map', `Mapped node: ${NODES[currentIdx].title}`);
+          const node = NODES[currentIdx];
+          if (node) {
+            setVisibleNodes(prev => [...prev, node.id]);
+            addLog('map', `Mapped node: ${node.title}`);
+          }
           if (currentIdx === 0) setScore(72);
           if (currentIdx === 2) setScore(55);
           if (currentIdx === 5) setScore(31);
