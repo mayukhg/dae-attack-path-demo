@@ -1,36 +1,32 @@
-# Dynamic Agentic Experience (DAE) - User Journey Workflow
+# Dynamic Agentic Experience (DAE) - Conversational User Journey
 
-This document describes the user journey through the DAE Attack Path demo application, outlining what the user experiences and the underlying agentic systems that power the visualizations.
+This document describes the upgraded user journey traversing through the DAE Demo application. The workflow has been evolved from a passive dashboard visualizer into a commanding conversational interface guided by **Agent DAE**.
 
-## Phase 1: Initialize & Continuous Autonomous Discovery
-**User Action:** The user navigates to the dashboard URL. There are no inputs required to start; the system works autonomously.
+## Phase 1: Proactive Interrogation (The Discovery)
+**User Action:** The user navigates to the dashboard URL. 
+**Agent Action:** The **Agent DAE** chat interface (located in the right panel) greets the user: *"Hello, I am Agent DAE. I continuously validate whether your exposures are exploitable."*
 **What Happens On Screen:**
-- The **Confidence Score** is established in a healthy range.
-- The **Mapping Agent** (left panel log) begins polling telemetry data.
-- The **Map Canvas** (center) dynamically constructs the environment's topography node-by-node, visualizing newly discovered assets mapping from standard UAT environments deep into internal infrastructure.
+- The graph area is empty.
+- Once Agent DAE announces the scan, it automatically invokes the map. The React Flow topography progressively paints the known universe (from UAT Dev outwards).
+- Agent DAE proposes 3 Trending CVE options (e.g., Apache Tomcat, HTTP Server, PHP).
 
-## Phase 2: Recursive Threat Simulation
-**User Action:** The user observes as the map completes its rendering.
+## Phase 2: Directed Validation (The Simulation)
+**User Action:** The user clicks the **"Run DAE Assessment"** button situated inside the chat.
 **What Happens On Screen:**
-- Once the map is fully constructed, the **Simulation Agent** automatically takes over.
-- The agent simulates millions of breach permutations in the background. Note the logs updating in the left panel as it attempts different lateral movement strategies (e.g., testing the container escape, exploiting the BOLA vulnerability).
-- The **Confidence Score** drops dynamically as critical exploit paths (such as the *Shadow API --> RCE* progression) are validated by the Simulation agent.
-- A **"Choke Point"** is identified. Node B (Shadow API) begins pulsing red on the map.
+- The chat transitions to the "Scanning" phase.
+- **Graph Map Synchronicity:** The React Flow canvas visibly explodes with red, animated edge-traffic, simulating algorithmic threat progression traversing toward the Domain Admin.
+- The chat interface highlights that the critical path is vulnerable and explicitly identifies **Node B: Shadow API** as the nexus point.
+- The QVSS Score Comparative UI drops in, showing the score climbing to a highly critical **9.9**.
 
-## Phase 3: Goal-Oriented Remediation Suggestion
-**User Action:** The user reviews the right-hand panel for security action.
+## Phase 3: The Safe Fix Analysis 
+**User Action:** The user evaluates the options and clicks **"View Remediation Options"**.
 **What Happens On Screen:**
-- The **Remediation Agent** calculates the most efficient way to break the validated attack paths.
-- Instead of suggesting a patching scramble across 50 nodes, it identifies that securing the single choke point (Node B) will definitively collapse the pathway to the Domain Admin.
-- The "Execute Safe Fix" button transitions from disabled to active.
+- Agent DAE analyzes the infrastructure dependencies and produces a customized mitigation card specifically targeting the Node B Choke Point.
+- It recommends a configuration-based mitigation to sever the path without requiring extensive patching downtime.
 
-## Phase 4: Human-in-the-Loop Execution
-**User Action:** The user clicks the **"Execute Safe Fix"** button.
+## Phase 4: Resolution & Revalidation
+**User Action:** The user selects **"Mitigate + Revalidate"**.
 **What Happens On Screen:**
-- The Remediation Agent deploys a temporary WAF virtual patch and enforces MFA on the affected node.
-- The connection originating from the Choke Point is visually severed ("Blocked").
-- The Simulation Agent fires immediately again to re-test the perimeter.
-- With the path neutralized, the overall matrix is nullified, and the **Confidence Score** increases securely back to an optimized state.
-
----
-**Summary:** The journey shifts the analyst from a reactive hunter manually parsing static maps, to an intent-led reviewer simply approving high-confidence, pre-tested remediation strategies proposed by an orchestrated ecosystem of bots.
+- **In the Chat:** Agent DAE reports "1/1 Successful Mitigation Deployment." It actively relaunches a secondary verification scan against Node B.
+- **On the Graph Map:** The nodes instantly react. The red traversal lines vanish. Node B shifts to an embedded "SECURED" visual state with a green border. All downward connection edges turn dim, proving the attack vectors are physically broken. 
+- **The Final Result:** Agent DAE posts the concluding scorecard comparing the original 9.6 Base score against the newly mitigated and validated **7.7** safe state.
