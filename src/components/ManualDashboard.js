@@ -26,17 +26,17 @@ export default function ManualDashboard({ onSimulate, onMitigate, phase }) {
             </thead>
             <tbody>
                <tr>
-                 <td style={{ paddingTop: '8px' }}>UAT -> Domain Admin</td>
+                 <td style={{ paddingTop: '8px' }}>UAT {'->'} Domain Admin</td>
                  <td style={{ paddingTop: '8px' }}>5</td>
                  <td style={{ paddingTop: '8px', color: '#f8fafc' }}>High</td>
                </tr>
                <tr>
-                 <td style={{ paddingTop: '8px' }}>DMZ -> Kubelet</td>
+                 <td style={{ paddingTop: '8px' }}>DMZ {'->'} Kubelet</td>
                  <td style={{ paddingTop: '8px' }}>3</td>
                  <td style={{ paddingTop: '8px', color: '#f8fafc' }}>Critical</td>
                </tr>
                <tr>
-                 <td style={{ paddingTop: '8px' }}>Phishing -> VPN</td>
+                 <td style={{ paddingTop: '8px' }}>Phishing {'->'} VPN</td>
                  <td style={{ paddingTop: '8px' }}>4</td>
                  <td style={{ paddingTop: '8px', color: '#f8fafc' }}>Critical</td>
                </tr>

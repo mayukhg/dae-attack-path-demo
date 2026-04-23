@@ -102,6 +102,16 @@ export default function Dashboard() {
       {/* Visual Attack Path Engine */}
       <div style={{ position: 'relative' }}>
          
+         {/* Reset Button Top Right */}
+         <button 
+           onClick={() => setIsAgenticMode(false)}
+           style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(57, 73, 94, 0.8)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', transition: '0.2s' }}
+           onMouseOver={(e) => e.target.style.background = 'rgba(239,68,68,0.4)'}
+           onMouseOut={(e) => e.target.style.background = 'rgba(57, 73, 94, 0.8)'}
+         >
+           ↺ Reset to Manual
+         </button>
+
          {/* Toggle Component fixed to bottom-left */}
          <div style={{ position: 'absolute', bottom: '24px', left: '24px', zIndex: 100, background: 'rgba(15,23,42,0.9)', padding: '12px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', gap: '12px', alignItems: 'center' }}>
             <span style={{ fontSize: '12px', fontWeight: isAgenticMode ? 'normal' : '600', color: isAgenticMode ? '#94a3b8' : 'white' }}>Manual Dashboard</span>
