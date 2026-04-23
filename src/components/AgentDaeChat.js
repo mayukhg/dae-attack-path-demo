@@ -14,7 +14,7 @@ const TypingIndicator = () => (
 
 export default function AgentDaeChat({ onAction, setSharedState }) {
   const [messages, setMessages] = useState([]);
-  const [chatPhase, setChatPhase] = useState('discovery');
+  const [chatPhase, setChatPhase] = useState('intro');
   const [selectedPath, setSelectedPath] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const endOfChatRef = useRef(null);
@@ -28,26 +28,31 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   };
 
   useEffect(() => {
-    if (chatPhase === 'discovery' && messages.length === 0) {
-      pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "Hello, I am Agent DAE. I continuously map your infrastructure for blast radiuses and lateral movement paths." }, 1500);
-
-      setTimeout(() => {
-        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "Validating your topology, hold tight..." }, 1000);
-        onAction('init_map');
-      }, 4000);
-
-      setTimeout(() => {
-        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "You're off to a great start! I've analyzed 3 critical attack paths converging on your core assets." }, 1500);
-      }, 7500);
-
-      setTimeout(() => {
-        setMessages(prev => [...prev, { sender: 'agent', type: 'path_selection', data: mockPaths }]);
-        setChatPhase('selection');
-        setSharedState({ activePaths: 3, pcsScore: 0 }); // Update global metrics
-      }, 9500);
+    if (chatPhase === 'intro' && messages.length === 0) {
+      pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'intro_prompt' }, 1500);
     }
     endOfChatRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatPhase, messages.length]);
+
+  const handleStartScoping = () => {
+    setChatPhase('discovery');
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Yes, Start Topographic Scoping" }]);
+    
+    setTimeout(() => {
+        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "Validating your topology, hold tight..." }, 1000);
+        onAction('init_map');
+    }, 1500);
+
+    setTimeout(() => {
+        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "You're off to a great start! I've analyzed 3 critical attack paths converging on your core assets." }, 1500);
+    }, 6000);
+
+    setTimeout(() => {
+        setMessages(prev => [...prev, { sender: 'agent', type: 'path_selection', data: mockPaths }]);
+        setChatPhase('selection');
+        setSharedState({ activePaths: 3, pcsScore: 0 }); // Update global metrics
+    }, 8500);
+  };
 
   const handlePathSelect = (pathId) => {
     setSelectedPath(pathId);
@@ -115,7 +120,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   const handleAgentReset = () => {
     setMessages([]);
     setSelectedPath('');
-    setChatPhase('discovery');
+    setChatPhase('intro');
     setSharedState({ activePaths: 0, pcsScore: 0, isSimulating: false });
     onAction('init_map'); 
   };
@@ -125,6 +130,33 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     switch (msg.type) {
       case 'text':
         return <div className="chat-bubble">{msg.content}</div>;
+
+      case 'intro_prompt':
+         return (
+           <div className="card-container text-left" style={{marginTop:'4px', marginBottom:'12px'}}>
+              <p style={{marginBottom: '12px', fontSize: '13px', lineHeight: '1.4'}}>
+                 Hello! I am <strong>Agent DAE (Dynamic Agentic Experience)</strong>.
+              </p>
+              <p style={{marginBottom: '4px', fontSize: '12px', color: '#94a3b8'}}>I perform the following actions:</p>
+              <ul style={{fontSize: '12px', paddingLeft: '24px', marginBottom: '12px', color: '#cbd5e1', listStyleType: 'disc'}}>
+                 <li>Autonomous Infrastructure Discovery</li>
+                 <li>Real-time Lateral Movement Simulation</li>
+                 <li>Target-specific Threat Remediation</li>
+              </ul>
+              <p style={{marginBottom: '4px', fontSize: '12px', color: '#94a3b8'}}>Which give you the following benefits:</p>
+              <ul style={{fontSize: '12px', paddingLeft: '24px', marginBottom: '16px', color: '#cbd5e1', listStyleType: 'disc'}}>
+                 <li>Drastically Reduced MTTR</li>
+                 <li>Preemptive Choke-point Identification</li>
+                 <li>Elimination of Legacy Manual Friction</li>
+              </ul>
+              <p style={{marginBottom: '16px', fontSize: '12px', fontWeight: 'bold', color: '#facc15'}}>
+                 Can I start with the following action: Topographic Infrastructure Scoping?
+              </p>
+              <button className="btn-primary" style={{width:'100%'}} onClick={handleStartScoping} disabled={chatPhase !== 'intro'}>
+                Yes, Start Topographic Scoping
+              </button>
+           </div>
+         );
       
       case 'path_selection':
         return (
