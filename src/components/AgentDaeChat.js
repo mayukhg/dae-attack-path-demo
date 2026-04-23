@@ -84,6 +84,13 @@ export default function AgentDaeChat({ onAction }) {
     }, 5500);
   };
 
+  const handleAgentReset = () => {
+    setMessages([]);
+    setSelectedPath('');
+    setChatPhase('discovery');
+    onAction('init_map'); 
+  };
+
   // --- Render Helpers ---
   const renderMessageContent = (msg, i) => {
     switch (msg.type) {
@@ -199,6 +206,13 @@ export default function AgentDaeChat({ onAction }) {
                  </div>
               </div>
               <p style={{fontSize:'12px', marginTop:'12px'}}>⭐ Done! Your path validation summary has been sent to your Teams channel.</p>
+              <button 
+                className="btn-outline" 
+                style={{marginTop:'12px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} 
+                onClick={handleAgentReset}
+              >
+                ↻ Restart Agent Workflow
+              </button>
            </div>
          );
 
