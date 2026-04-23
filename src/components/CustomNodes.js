@@ -67,3 +67,40 @@ export const CrownJewelNode = ({ data }) => {
     </div>
   );
 };
+
+export const AiAgentNode = ({ data }) => {
+  return (
+    <div style={{ ...baseNodeStyle, position: 'relative', border: '1px solid #8b5cf6', background: 'rgba(139, 92, 246, 0.1)', ...data.styleOverrides }}>
+      {/* Threat Tags */}
+      {data.showThreats && (
+         <div style={{ position: 'absolute', top: '-40px', left: '-20px', display: 'flex', flexDirection: 'column', gap: '4px', zIndex: 10 }}>
+            <div style={{ background: '#eab308', color: 'black', fontSize: '9px', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap', boxShadow: '0 0 10px #eab308' }}>
+               🌐 INTERNET EXPOSED
+            </div>
+            <div style={{ background: '#ef4444', color: 'white', fontSize: '9px', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px', whiteSpace: 'nowrap', boxShadow: '0 0 10px #ef4444' }}>
+               🔒 SENSITIVE CUSTOMER DATA
+            </div>
+         </div>
+      )}
+      
+      {data.status === 'compromised' && (
+        <div style={{ position: 'absolute', inset: 0, border: '2px solid #ef4444', borderRadius: '8px', pointerEvents: 'none', boxShadow: '0 0 15px #ef4444', zIndex: 1 }} />
+      )}
+      {data.status === 'secured' && (
+        <div style={{ position: 'absolute', inset: 0, border: '2px solid #10b981', borderRadius: '8px', pointerEvents: 'none', boxShadow: '0 0 15px #10b981', zIndex: 1 }} />
+      )}
+      
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', zIndex: 2 }}>
+         <div style={{ background: '#8b5cf6', padding: '6px', borderRadius: '6px', fontSize:'14px' }}>
+            🤖
+         </div>
+         <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#e2e8f0' }}>{data.assetType || 'AI AGENT'}</div>
+      </div>
+      
+      <div style={{ fontSize: '10px', color: '#cbd5e1', marginTop: '4px', zIndex: 2 }}>{data.label}</div>
+
+      <Handle type="target" position={Position.Top} style={handleStyle} />
+      <Handle type="source" position={Position.Bottom} style={handleStyle} />
+    </div>
+  );
+};

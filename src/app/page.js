@@ -11,9 +11,9 @@ import 'reactflow/dist/style.css';
 import AgentDaeChat from '../components/AgentDaeChat';
 import ManualDashboard from '../components/ManualDashboard';
 import LiveMetrics from '../components/LiveMetrics';
-import { BaseNode, CrownJewelNode } from '../components/CustomNodes';
+import { BaseNode, CrownJewelNode, AiAgentNode } from '../components/CustomNodes';
 
-const nodeTypes = { base: BaseNode, crown: CrownJewelNode };
+const nodeTypes = { base: BaseNode, crown: CrownJewelNode, ai: AiAgentNode };
 
 const initialNodes = [
   { id: 'A', position: { x: 50, y: 50 }, type: 'base', data: { label: 'Discovery Asset', assetType: 'DEV ENVIRONMENT', icon: '💻', status: 'normal' } },
@@ -32,6 +32,17 @@ const initialEdges = [
   { id: 'eC-F', source: 'C', target: 'F', animated: false, style: edgeStyling },
   { id: 'eD-G', source: 'D', target: 'G', animated: false, style: edgeStyling },
   { id: 'eF-G', source: 'F', target: 'G', animated: false, style: edgeStyling },
+];
+
+const aiNodes = [
+  { id: 'W1', position: { x: 50, y: 50 }, type: 'base', data: { label: 'Finance Desktop User', assetType: 'REMOTE HOST', icon: '👤', status: 'normal' } },
+  { id: 'W2', position: { x: 50, y: 250 }, type: 'ai', data: { label: 'Finance Auto-Billing Agent', assetType: 'AI AGENT', showThreats: true, status: 'normal' } },
+  { id: 'W3', position: { x: 50, y: 450 }, type: 'crown', data: { label: 'Customer Root Database (PII)', status: 'normal' } },
+];
+
+const aiEdges = [
+  { id: 'eW1-W2', source: 'W1', target: 'W2', animated: false, style: edgeStyling },
+  { id: 'eW2-W3', source: 'W2', target: 'W3', animated: false, style: edgeStyling },
 ];
 
 export default function Dashboard() {
@@ -126,6 +137,39 @@ export default function Dashboard() {
       
       setEdges(eds => eds.map(e => {
          if (e.id === 'eA-B') return { ...e, animated: false, style: { stroke: '#10b981', strokeWidth: 2, transition: 'all 1s ease' } };
+         return { ...e, animated: false, style: { stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, transition: 'all 1s ease' } };
+      }));
+    }
+    
+    if (action === 'init_ai_map') {
+      setNodes(aiNodes);
+      setEdges(aiEdges);
+    }
+
+    if (action === 'simulate_ai_path') {
+      setEdges(eds => eds.map(e => ({
+        ...e,
+        animated: true,
+        style: { stroke: '#ef4444', strokeWidth: 2 }
+      })));
+      setTimeout(() => {
+        setNodes(nds => nds.map(n => {
+           if (n.id === 'W2' || n.id === 'W3') 
+               return { ...n, data: { ...n.data, status: 'compromised' } };
+           return n;
+        }));
+      }, 1000);
+    }
+    
+    if (action === 'secure_ai_path') {
+      setNodes(nds => nds.map(n => {
+        if (n.id === 'W2') return { ...n, data: { ...n.data, status: 'secured', showThreats: false, label: 'Finance Auto-Billing Agent (EGRESS SECURED)' } };
+        // Reset everything else back to normal
+        if (n.id !== 'W2') return { ...n, data: { ...n.data, status: 'normal' } };
+        return n;
+      }));
+      setEdges(eds => eds.map(e => {
+         if (e.id === 'eW1-W2') return { ...e, animated: false, style: { stroke: '#10b981', strokeWidth: 2, transition: 'all 1s ease' } };
          return { ...e, animated: false, style: { stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, transition: 'all 1s ease' } };
       }));
     }

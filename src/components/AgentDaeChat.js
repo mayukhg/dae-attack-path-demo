@@ -18,6 +18,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   const [selectedPath, setSelectedPath] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const endOfChatRef = useRef(null);
+  const initRef = useRef(false);
 
   const pushMessage = (msg, delay) => {
     setIsTyping(true);
@@ -28,7 +29,8 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   };
 
   useEffect(() => {
-    if (chatPhase === 'intro' && messages.length === 0) {
+    if (chatPhase === 'intro' && messages.length === 0 && !initRef.current) {
+      initRef.current = true;
       pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'intro_prompt' }, 1500);
     }
     endOfChatRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -36,7 +38,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
   const handleStartScoping = () => {
     setChatPhase('discovery');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Yes, Start Topographic Scoping" }]);
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Yes, start critical attack path discovery" }]);
     
     setTimeout(() => {
         pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "Validating your topology, hold tight..." }, 1000);
@@ -44,7 +46,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     }, 1500);
 
     setTimeout(() => {
-        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "You're off to a great start! I've analyzed 3 critical attack paths converging on your core assets." }, 1500);
+        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "You're off to a great start! I've analyzed 3 critical attack paths converging on your core assets. Please select an attack path to proceed further with the flow" }, 1500);
     }, 6000);
 
     setTimeout(() => {
@@ -118,11 +120,68 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   };
 
   const handleAgentReset = () => {
+    initRef.current = false;
     setMessages([]);
     setSelectedPath('');
     setChatPhase('intro');
     setSharedState({ activePaths: 0, pcsScore: 0, isSimulating: false });
     onAction('init_map'); 
+  };
+
+  const handleStartPhase2 = () => {
+    setChatPhase('phase2_discovery');
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Begin Phase 2: AI Agent Posture Validation" }]);
+    
+    setTimeout(() => {
+        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "I am now shifting focus to your AI supply chain. I am now building a dynamic inventory of your AI based applications to understand what AI related implementations your teams are doing" }, 1500);
+        onAction('init_ai_map'); 
+        setSharedState({ activePaths: 1, pcsScore: 0 }); 
+    }, 500);
+
+    setTimeout(() => {
+        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "I have successfully mapped the new Finance AI architecture. I am natively flagging that this AI agent is currently 🌐 Internet Exposed and possesses active bindings to 🔒 Sensitive Customer Data." }, 5500);
+    }, 1500);
+
+    setTimeout(() => {
+        setMessages(prev => [...prev, { sender: 'agent', type: 'phase2_review_prompt' }]);
+        setChatPhase('phase2_review');
+    }, 9000);
+  };
+
+  const handlePhase2Simulate = () => {
+     setChatPhase('phase2_simulating');
+     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Authorize Security Review Simulation" }]);
+     onAction('simulate_ai_path');
+     
+     setTimeout(() => {
+        pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: "I am now taking over to conduct an automated security review at AI-speed without requiring manual DevOps reviews. I am simulating an external Prompt Injection attack against the Finance AI Agent to see if it can be manipulated into leaking the Customer Root Database." }, 1000);
+     }, 500);
+
+     setTimeout(() => {
+        setMessages(prev => [...prev, { sender: 'agent', type: 'phase2_remediation_prompt' }]);
+        setChatPhase('phase2_remediation');
+        setSharedState({ pcsScore: 10.0 });
+     }, 6000);
+  };
+
+  const handlePhase2Mitigate = () => {
+     setChatPhase('phase2_complete');
+     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Authorize Dev Handoff & Secure" }]);
+     
+     setTimeout(() => {
+        setMessages(prev => [...prev, { sender: 'agent', type: 'mitigation_success' }]);
+        onAction('secure_ai_path'); 
+     }, 1500);
+     
+     setTimeout(() => {
+        setIsTyping(true);
+     }, 2500);
+
+     setTimeout(() => {
+        setIsTyping(false);
+        setMessages(prev => [...prev, { sender: 'agent', type: 'phase2_revalidation_results' }]);
+        setSharedState({ pcsScore: 0.0, activePaths: 0 });
+     }, 4500);
   };
 
   // --- Render Helpers ---
@@ -139,7 +198,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </p>
               <p style={{marginBottom: '4px', fontSize: '12px', color: '#94a3b8'}}>I perform the following actions:</p>
               <ul style={{fontSize: '12px', paddingLeft: '24px', marginBottom: '12px', color: '#cbd5e1', listStyleType: 'disc'}}>
-                 <li>Autonomous Infrastructure Discovery</li>
+                 <li>Autonomous critical attack path discovery</li>
                  <li>Real-time Lateral Movement Simulation</li>
                  <li>Target-specific Threat Remediation</li>
               </ul>
@@ -150,10 +209,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <li>Elimination of Legacy Manual Friction</li>
               </ul>
               <p style={{marginBottom: '16px', fontSize: '12px', fontWeight: 'bold', color: '#facc15'}}>
-                 Can I start with the following action: Topographic Infrastructure Scoping?
+                 Can I start with the following action: critical attack path discovery?
               </p>
               <button className="btn-primary" style={{width:'100%'}} onClick={handleStartScoping} disabled={chatPhase !== 'intro'}>
-                Yes, Start Topographic Scoping
+                Yes, start critical attack path discovery
               </button>
            </div>
          );
@@ -166,7 +225,6 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               {msg.data.map(p => (
                 <div key={p.id} className={`cve-card ${selectedPath === p.id ? 'selected' : ''}`} onClick={() => handlePathSelect(p.id)}>
                    <div style={{fontWeight:600}}>{p.id}</div>
-                   <div style={{fontSize:'11px', color:'#94a3b8'}}>Nexus: {p.nexus}</div>
                 </div>
               ))}
             </div>
@@ -233,8 +291,47 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
            <div className="card-container">
               <h4 style={{color:'#10b981'}}>Path Completely Severed</h4>
               <p style={{fontSize:'12px', marginTop:'12px'}}>⭐ Done! Your path validation summary has been sent. The PCS score dropped safely to 7.7.</p>
+              {chatPhase === 'complete' && (
+                 <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handleStartPhase2}>
+                   Begin Phase 2: AI Agent Posture Validation
+                 </button>
+              )}
+              <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
+                ↻ Restart Agent Workflow // End Part 1
+              </button>
+           </div>
+         );
+
+      case 'phase2_review_prompt':
+         return (
+           <div className="card-container text-right">
+             <button className="btn-primary" onClick={handlePhase2Simulate} disabled={chatPhase !== 'phase2_review'}>
+               Authorize Security Review Simulation
+             </button>
+           </div>
+         );
+
+      case 'phase2_remediation_prompt':
+         return (
+           <div className="card-container">
+              <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
+                  <span style={{fontSize:'10px', background:'#fb923c', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>REMEDIATION AGENT</span>
+              </div>
+              <p style={{fontSize:'12px', marginBottom:'8px'}}>Simulation validated. The AI Agent is vulnerable. I have automatically drafted the exact architectural fix required to secure the egress perimeter.</p>
+              <p style={{fontSize:'12px', marginBottom:'12px'}}>Rather than creating a manual ticket, I have automatically compiled this fix into code and sent it as a Pull Request (PR) directly to the Finance Dev Team's native GitHub repository to completely eliminate friction. Do you authorize this commit?</p>
+              <button className="btn-primary" style={{width:'100%'}} onClick={handlePhase2Mitigate} disabled={chatPhase !== 'phase2_remediation'}>
+                Authorize Dev Handoff & Secure
+              </button>
+           </div>
+         );
+
+      case 'phase2_revalidation_results':
+         return (
+           <div className="card-container">
+              <h4 style={{color:'#10b981'}}>AI Supply Chain Secured</h4>
+              <p style={{fontSize:'12px', marginTop:'12px'}}>⭐ PR successfully merged. Finance Dev Team notified organically. The PCS score neutralized completely.</p>
               <button className="btn-outline" style={{marginTop:'12px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
-                ↻ Restart Agent Workflow
+                ↻ Supercharge Complete (Back to Start)
               </button>
            </div>
          );
