@@ -4,28 +4,34 @@ import ReactFlow, {
   Background, 
   Controls, 
   applyNodeChanges, 
-  applyEdgeChanges 
+  applyEdgeChanges,
+  MarkerType
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import AgentDaeChat from '../components/AgentDaeChat';
 import ManualDashboard from '../components/ManualDashboard';
+import LiveMetrics from '../components/LiveMetrics';
+import { BaseNode, CrownJewelNode } from '../components/CustomNodes';
+
+const nodeTypes = { base: BaseNode, crown: CrownJewelNode };
 
 const initialNodes = [
-  { id: 'A', position: { x: 50, y: 50 }, data: { label: 'A: UAT Dev Environment (Discovery)' }, type: 'input', style: { background: 'rgba(30,41,59,0.8)', color: 'white', border: '1px solid #475569' } },
-  { id: 'B', position: { x: 50, y: 150 }, data: { label: 'B: Shadow API - BOLA' }, style: { background: 'rgba(30,41,59,0.8)', color: 'white', border: '1px solid #475569' } },
-  { id: 'C', position: { x: 50, y: 250 }, data: { label: 'C: RCE/Web Shell' }, style: { background: 'rgba(30,41,59,0.8)', color: 'white', border: '1px solid #475569' } },
-  { id: 'D', position: { x: -100, y: 350 }, data: { label: 'D: Container Escape' }, style: { background: 'rgba(30,41,59,0.8)', color: 'white', border: '1px solid #475569' } },
-  { id: 'F', position: { x: 200, y: 350 }, data: { label: 'F: NTLM Extraction' }, style: { background: 'rgba(30,41,59,0.8)', color: 'white', border: '1px solid #475569' } },
-  { id: 'G', position: { x: 50, y: 450 }, data: { label: 'G: Domain Admin Access' }, type: 'output', style: { background: 'rgba(30,41,59,0.8)', color: 'white', border: '1px solid #475569' } },
+  { id: 'A', position: { x: 50, y: 50 }, type: 'base', data: { label: 'Discovery Asset', assetType: 'DEV ENVIRONMENT', icon: '💻', status: 'normal' } },
+  { id: 'B', position: { x: 50, y: 150 }, type: 'base', data: { label: 'BOLA Exploit', assetType: 'SHADOW API', icon: '🔗', status: 'normal' } },
+  { id: 'C', position: { x: 50, y: 250 }, type: 'base', data: { label: 'Web Shell Exec', assetType: 'VM INSTANCE', icon: '🖥️', status: 'normal' } },
+  { id: 'D', position: { x: -100, y: 350 }, type: 'base', data: { label: 'Escape to Host', assetType: 'CONTAINER', icon: '📦', status: 'normal' } },
+  { id: 'F', position: { x: 200, y: 350 }, type: 'base', data: { label: 'NTLM Extraction', assetType: 'IDENTITY PROV', icon: '🔑', status: 'normal' } },
+  { id: 'G', position: { x: 50, y: 450 }, type: 'crown', data: { label: 'Active Directory Core', status: 'normal' } },
 ];
 
+const edgeStyling = { stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1 };
 const initialEdges = [
-  { id: 'eA-B', source: 'A', target: 'B', animated: false, style: { stroke: 'rgba(255,255,255,0.2)' } },
-  { id: 'eB-C', source: 'B', target: 'C', animated: false, style: { stroke: 'rgba(255,255,255,0.2)' } },
-  { id: 'eC-D', source: 'C', target: 'D', animated: false, style: { stroke: 'rgba(255,255,255,0.2)' } },
-  { id: 'eC-F', source: 'C', target: 'F', animated: false, style: { stroke: 'rgba(255,255,255,0.2)' } },
-  { id: 'eD-G', source: 'D', target: 'G', animated: false, style: { stroke: 'rgba(255,255,255,0.2)' } },
-  { id: 'eF-G', source: 'F', target: 'G', animated: false, style: { stroke: 'rgba(255,255,255,0.2)' } },
+  { id: 'eA-B', source: 'A', target: 'B', animated: false, style: edgeStyling },
+  { id: 'eB-C', source: 'B', target: 'C', animated: false, style: edgeStyling },
+  { id: 'eC-D', source: 'C', target: 'D', animated: false, style: edgeStyling },
+  { id: 'eC-F', source: 'C', target: 'F', animated: false, style: edgeStyling },
+  { id: 'eD-G', source: 'D', target: 'G', animated: false, style: edgeStyling },
+  { id: 'eF-G', source: 'F', target: 'G', animated: false, style: edgeStyling },
 ];
 
 export default function Dashboard() {
@@ -33,9 +39,18 @@ export default function Dashboard() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   
-  // Shared state for Manual Mode tracking
-  const [manualPhase, setManualPhase] = useState('init'); // init, simulating, secured
-  const [chatKey, setChatKey] = useState(0); // Used to force-remount the chat when toggling
+  // State for Manual Mode
+  const [manualPhase, setManualPhase] = useState('init');
+  
+  // Shared Live Metrics State from Agent Chat
+  const [sharedState, setSharedState] = useState({
+     pcsScore: 0,
+     activePaths: 0,
+     isSimulating: false
+  });
+
+  const [chatKey, setChatKey] = useState(0);
+  const [showCinematicBlackout, setShowCinematicBlackout] = useState(false);
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -46,24 +61,40 @@ export default function Dashboard() {
     []
   );
 
-  // Initialize nodes immediately in manual mode
+  const toggleMode = (targetMode) => {
+     if (targetMode === isAgenticMode) return;
+     
+     if (targetMode === true) {
+        // Trigger Cinematic Sequence
+        setShowCinematicBlackout(true);
+        setTimeout(() => {
+           setIsAgenticMode(true);
+           setNodes([]); // Wipe Map bare
+           setEdges([]);
+           setChatKey(prev => prev + 1);
+        }, 500);
+        setTimeout(() => setShowCinematicBlackout(false), 2000);
+     } else {
+        setIsAgenticMode(false);
+        setNodes(initialNodes);
+        setEdges(initialEdges);
+        setManualPhase('init');
+     }
+  };
+
   useEffect(() => {
     if (!isAgenticMode) {
-      setNodes(initialNodes.map(n => ({...n, hidden: false})));
+      setNodes(initialNodes);
       setEdges(initialEdges);
       setManualPhase('init');
-    } else {
-      // If switching to Agentic Mode, wipe the map clean for the "Discovery" intro
-      setNodes([]);
-      setEdges([]);
-      setChatKey(prev => prev + 1); // Reset the Chat component state
     }
-  }, [isAgenticMode]);
+  }, []);
 
-  // Unified Action Handler for React Flow
+  // Shared Action Trigger Map
   const triggerGraphAnimation = (action) => {
     if (action === 'init_map') {
-      setNodes(initialNodes.map(n => ({...n, hidden: false})));
+      // Staggered Entry Animation natively relying on Chat delays
+      setNodes(initialNodes);
       setEdges(initialEdges);
     }
     
@@ -77,65 +108,67 @@ export default function Dashboard() {
       
       setTimeout(() => {
         setNodes(nds => nds.map(n => {
-           if (n.id === 'B') return { ...n, style: { background: 'rgba(239,68,68,0.2)', border: '2px solid #ef4444', color: 'white', boxShadow: '0 0 15px rgba(239,68,68,0.5)' } };
+           if (n.id === 'B' || n.id === 'C' || n.id === 'G') 
+               return { ...n, data: { ...n.data, status: 'compromised' } };
            return n;
         }));
-      }, 2000);
+      }, 1000);
     }
     
     if (action === 'secure_path') {
       setNodes(nds => nds.map(n => {
-        if (n.id === 'B') return { ...n, style: { background: 'rgba(16,185,129,0.2)', border: '2px solid #10b981', color: 'white' }, data: { label: 'B: Shadow API (SECURED)' } };
+        if (n.id === 'B') return { ...n, data: { ...n.data, status: 'secured', label: 'Shadow API (BLOCKED)' } };
+        // Reset everything else back to normal
+        if (n.id !== 'B') return { ...n, data: { ...n.data, status: 'normal' } };
         return n;
       }));
       setManualPhase('secured');
       
       setEdges(eds => eds.map(e => {
-         if (e.id === 'eA-B') return { ...e, animated: false, style: { stroke: '#10b981', strokeWidth: 2 } };
-         return { ...e, animated: false, style: { stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 } };
+         if (e.id === 'eA-B') return { ...e, animated: false, style: { stroke: '#10b981', strokeWidth: 2, transition: 'all 1s ease' } };
+         return { ...e, animated: false, style: { stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1, transition: 'all 1s ease' } };
       }));
     }
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container" style={{ position: 'relative' }}>
+      
+      {/* Cinematic Transition Overlay */}
+      {showCinematicBlackout && (
+         <div className="cinematic-blackout">
+            <div className="pulsing-text">DAE Ecosystem Initializing...</div>
+         </div>
+      )}
+
       {/* Visual Attack Path Engine */}
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', background: 'radial-gradient(circle at 50% 50%, #0f172a 0%, #000000 100%)' }}>
          
-         {/* Reset Button Top Right */}
-         <button 
-           onClick={() => setIsAgenticMode(false)}
-           style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100, background: 'rgba(57, 73, 94, 0.8)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', transition: '0.2s' }}
-           onMouseOver={(e) => e.target.style.background = 'rgba(239,68,68,0.4)'}
-           onMouseOut={(e) => e.target.style.background = 'rgba(57, 73, 94, 0.8)'}
-         >
+         <button onClick={() => toggleMode(false)} className="reset-hover-btn">
            ↺ Reset to Manual
          </button>
 
-         {/* Toggle Component fixed to bottom-left */}
-         <div style={{ position: 'absolute', bottom: '24px', left: '24px', zIndex: 100, background: 'rgba(15,23,42,0.9)', padding: '12px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+         <div className="toggle-float-panel">
             <span style={{ fontSize: '12px', fontWeight: isAgenticMode ? 'normal' : '600', color: isAgenticMode ? '#94a3b8' : 'white' }}>Manual Dashboard</span>
-            
-            {/* Simple CSS Switch */}
             <div 
               style={{ width: '44px', height: '24px', background: isAgenticMode ? '#3b82f6' : '#475569', borderRadius: '12px', position: 'relative', cursor: 'pointer', transition: '0.3s' }}
-              onClick={() => setIsAgenticMode(!isAgenticMode)}
+              onClick={() => toggleMode(!isAgenticMode)}
             >
                <div style={{ position: 'absolute', top: '2px', left: isAgenticMode ? '22px' : '2px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', transition: '0.3s' }} />
             </div>
-
             <span style={{ fontSize: '12px', fontWeight: isAgenticMode ? '600' : 'normal', color: isAgenticMode ? 'white' : '#94a3b8' }}>Agent DAE</span>
          </div>
 
          <ReactFlow 
            nodes={nodes} 
            edges={edges}
+           nodeTypes={nodeTypes}
            onNodesChange={onNodesChange}
            onEdgesChange={onEdgesChange}
            fitView
            proOptions={{ hideAttribution: true }}
          >
-           <Background color="#1e293b" gap={16} />
+           <Background color="rgba(255,255,255,0.05)" gap={32} size={1} />
            <Controls style={{ background: 'rgba(30,41,59,0.8)', border: '1px solid rgba(255,255,255,0.1)' }} />
          </ReactFlow>
          
@@ -146,9 +179,16 @@ export default function Dashboard() {
          )}
       </div>
 
-      {/* Dynamic Right Panel Rendering */}
+      {/* Dynamic Right Panel Rendering - 60/40 Split Enforced in Agent Mode */}
       {isAgenticMode ? (
-        <AgentDaeChat key={chatKey} onAction={triggerGraphAnimation} />
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+           <AgentDaeChat 
+             key={chatKey} 
+             onAction={triggerGraphAnimation} 
+             setSharedState={(s) => setSharedState(prev => ({...prev, ...s}))} 
+           />
+           <LiveMetrics {...sharedState} />
+        </div>
       ) : (
         <ManualDashboard 
           phase={manualPhase} 

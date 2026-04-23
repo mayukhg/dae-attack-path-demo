@@ -1,77 +1,85 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export default function ManualDashboard({ onSimulate, onMitigate, phase }) {
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  const triggerManualSimulation = () => {
+    // Fake the slow legacy loading speed
+    setIsSimulating(true);
+    setTimeout(() => {
+      setIsSimulating(false);
+      onSimulate();
+    }, 3500);
+  };
+
+  const triggerManualFixes = () => {
+    // Artificial friction
+    const isConfirmed = window.confirm("WARNING: Deploying these static fixes will modify core firewall routing tables. Proceed?");
+    if (isConfirmed) {
+       onMitigate();
+    }
+  };
+
   return (
-    <div className="glass-panel" style={{ height: '100vh', borderRadius: 0, borderTop: 0, borderRight: 0, borderBottom: 0 }}>
+    <div style={{ height: '100vh', background: '#0f172a', borderLeft: '2px solid #334155', padding: '24px', fontFamily: 'monospace' }}>
       
-      <div className="panel-header">
-        <div className="panel-title">
-          <span>Static Path Analytics Console</span>
-        </div>
-        <div className="badge badge-map" style={{ background: '#475569', color: 'white', borderColor: '#64748b' }}>Manual Mode</div>
+      <div style={{ borderBottom: '1px solid #334155', paddingBottom: '16px', marginBottom: '24px' }}>
+        <h2 style={{ fontSize: '18px', color: '#94a3b8' }}>Legacy SecOps Console (Static)</h2>
+        <span style={{ fontSize: '10px', color: '#64748b' }}>Last Scan: 14 hours ago</span>
       </div>
       
-      <div className="panel-content" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         
-        {/* Discovered Paths List */}
-        <div className="card-container" style={{ background: 'transparent' }}>
-          <h3 style={{ fontSize: '15px', marginBottom: '8px' }}>Discovered Paths</h3>
-          <table style={{ width: '100%', fontSize: '12px', textAlign: 'left', borderCollapse: 'collapse' }}>
-            <thead>
-               <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}>
-                 <th style={{ paddingBottom: '8px' }}>Path Nexus</th>
-                 <th style={{ paddingBottom: '8px' }}>Nodes</th>
-                 <th style={{ paddingBottom: '8px' }}>Criticality</th>
+        {/* Utilitarian Discovered Paths List */}
+        <div>
+          <h3 style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '12px', textTransform: 'uppercase' }}>Identified Vulnerability Paths</h3>
+          <table style={{ width: '100%', fontSize: '11px', textAlign: 'left', border: '1px solid #334155' }}>
+            <thead style={{ background: '#1e293b' }}>
+               <tr>
+                 <th style={{ padding: '8px', borderRight: '1px solid #334155' }}>Path ID</th>
+                 <th style={{ padding: '8px', borderRight: '1px solid #334155' }}>CVE Chain</th>
+                 <th style={{ padding: '8px' }}>Syslog Priority</th>
                </tr>
             </thead>
             <tbody>
-               <tr>
-                 <td style={{ paddingTop: '8px' }}>UAT {'->'} Domain Admin</td>
-                 <td style={{ paddingTop: '8px' }}>5</td>
-                 <td style={{ paddingTop: '8px', color: '#f8fafc' }}>High</td>
+               <tr style={{ borderBottom: '1px solid #334155' }}>
+                 <td style={{ padding: '8px', borderRight: '1px solid #334155' }}>PATH-092 (UAT {'->'} DC)</td>
+                 <td style={{ padding: '8px', borderRight: '1px solid #334155' }}>CVE-2023-XYZ, NTLM</td>
+                 <td style={{ padding: '8px', color: '#cbd5e1' }}>P1</td>
                </tr>
-               <tr>
-                 <td style={{ paddingTop: '8px' }}>DMZ {'->'} Kubelet</td>
-                 <td style={{ paddingTop: '8px' }}>3</td>
-                 <td style={{ paddingTop: '8px', color: '#f8fafc' }}>Critical</td>
-               </tr>
-               <tr>
-                 <td style={{ paddingTop: '8px' }}>Phishing {'->'} VPN</td>
-                 <td style={{ paddingTop: '8px' }}>4</td>
-                 <td style={{ paddingTop: '8px', color: '#f8fafc' }}>Critical</td>
+               <tr style={{ borderBottom: '1px solid #334155' }}>
+                 <td style={{ padding: '8px', borderRight: '1px solid #334155' }}>PATH-011 (DMZ {'->'} Kube)</td>
+                 <td style={{ padding: '8px', borderRight: '1px solid #334155' }}>Container Breakout</td>
+                 <td style={{ padding: '8px', color: '#cbd5e1' }}>P1</td>
                </tr>
             </tbody>
           </table>
         </div>
 
         {/* Manual Interaction Container */}
-        <div className="card-container">
-           <h3 style={{ fontSize: '15px' }}>Path Interaction</h3>
-           <p style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '16px' }}>Select an action to execute across the topology.</p>
+        <div style={{ border: '1px solid #334155', padding: '16px', background: '#1e293b' }}>
+           <h3 style={{ fontSize: '12px', color: '#cbd5e1', marginBottom: '16px', textTransform: 'uppercase' }}>Manual Command Execution</h3>
            
            <button 
-             className="btn-outline" 
-             style={{ width: '100%', marginBottom: '12px', opacity: phase === 'init' ? 1 : 0.5 }}
-             onClick={onSimulate}
-             disabled={phase !== 'init'}
+             style={{ width: '100%', padding: '12px', background: 'transparent', border: '1px solid #64748b', color: '#cbd5e1', cursor: (phase !== 'init' || isSimulating) ? 'not-allowed' : 'pointer', opacity: (phase !== 'init') ? 0.3 : 1 }}
+             onClick={triggerManualSimulation}
+             disabled={phase !== 'init' || isSimulating}
            >
-             Trigger Simulation Ping
+             {isSimulating ? 'EXECUTING PING TRACE...' : 'Execute Manual Ping Trace'}
            </button>
 
            {phase === 'simulating' && (
-              <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>
-                 <div style={{ color: '#fca5a5', fontSize: '12px', fontWeight: 600 }}>! Alert: Node B (Shadow API) Breached</div>
-                 <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>Path requires immediate manual review and mitigation ruleset authoring.</div>
+              <div style={{ padding: '16px', borderLeft: '4px solid #ef4444', background: '#450a0a', marginTop: '16px', color: '#fca5a5' }}>
+                 <strong>SYSLOG ALERT:</strong> Unidentified lateral movement detected at 10.0.4.52 (Shadow API). Requires immediate SecOps review to draft iptables.
               </div>
            )}
 
            <button 
-             className="btn-primary" 
-             style={{ width: '100%', background: '#3b82f6', color: 'white' }}
-             onClick={onMitigate}
+             style={{ width: '100%', padding: '12px', background: '#dc2626', border: 'none', color: 'white', marginTop: '16px', cursor: phase !== 'simulating' ? 'not-allowed' : 'pointer', opacity: phase !== 'simulating' ? 0.3 : 1 }}
+             onClick={triggerManualFixes}
              disabled={phase !== 'simulating'}
            >
-             Deploy Manual Fixes
+             Push Static Mitigation State
            </button>
         </div>
 
