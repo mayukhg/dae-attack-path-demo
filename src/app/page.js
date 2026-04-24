@@ -279,7 +279,7 @@ export default function Dashboard() {
       {/* Cinematic Transition Overlay */}
       {showCinematicBlackout && (
          <div className="cinematic-blackout">
-            <div className="pulsing-text">DAE Ecosystem Initializing...</div>
+            <div className="pulsing-text">Agent Iris Ecosystem Initializing...</div>
          </div>
       )}
 
@@ -315,7 +315,7 @@ export default function Dashboard() {
             >
                <div style={{ position: 'absolute', top: '2px', left: isAgenticMode ? '22px' : '2px', width: '20px', height: '20px', background: 'white', borderRadius: '50%', transition: '0.3s' }} />
             </div>
-            <span style={{ fontSize: '12px', fontWeight: isAgenticMode ? '600' : 'normal', color: isAgenticMode ? 'white' : '#94a3b8' }}>Agent DAE</span>
+            <span style={{ fontSize: '12px', fontWeight: isAgenticMode ? '600' : 'normal', color: isAgenticMode ? 'white' : '#94a3b8' }}>Agent Iris</span>
          </div>
 
          <ReactFlow 

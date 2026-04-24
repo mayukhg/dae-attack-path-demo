@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "DAE Attack Path | Dynamic Agentic Experience",
+  title: "Agent Iris Attack Path | Dynamic Agentic Experience",
   description: "Agent-driven autonomous discovery, simulation, and remediation ecosystem.",
 };
 

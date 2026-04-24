@@ -165,6 +165,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   };
 
   const handleGenerateReport = () => {
+    setChatPhase('generating_report');
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Generate Executive Report" }]);
     
     setTimeout(() => {
@@ -172,9 +173,15 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          sender: 'agent', 
          identity: 'Reporting Agent', 
          color: '#14b8a6', 
-         type: 'executive_report' 
-       }, 2000);
+         type: 'text',
+         content: "Compiling executive summary of the simulated attack path, mitigations applied, and business impact..."
+       }, 500);
     }, 500);
+
+    setTimeout(() => {
+       setMessages(prev => [...prev, { sender: 'agent', type: 'executive_report' }]);
+       setChatPhase('report_generated');
+    }, 2500);
   };
 
   const handleAgentReset = () => {
@@ -340,7 +347,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container text-left" style={{marginTop:'4px', marginBottom:'12px'}}>
               <p style={{marginBottom: '12px', fontSize: '13px', lineHeight: '1.4'}}>
-                 Hello! I am <strong>Agent DAE (Dynamic Agentic Experience)</strong>.
+                 Hello! I am <strong>Agent Iris</strong>.
               </p>
               <p style={{marginBottom: '4px', fontSize: '12px', color: '#94a3b8'}}>I perform the following actions:</p>
               <ul style={{fontSize: '12px', paddingLeft: '24px', marginBottom: '12px', color: '#cbd5e1', listStyleType: 'disc'}}>
@@ -449,7 +456,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container border-green">
               <div style={{color:'#10b981', fontWeight:600, marginBottom:'8px'}}>✔ Mitigation Deployment</div>
-              <p style={{fontSize:'12px'}}>Re-launching DAE simulation across the topography to verify remediation effectiveness...</p>
+              <p style={{fontSize:'12px'}}>Re-launching Agent Iris simulation across the topography to verify remediation effectiveness...</p>
            </div>
          );
 
@@ -459,21 +466,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               <h4 style={{color:'#10b981'}}>Path Completely Severed</h4>
               <p style={{fontSize:'12px', marginTop:'12px'}}>⭐ Done! Your path validation summary has been sent. The PCS score dropped safely to 7.7.</p>
               {chatPhase === 'complete' && (
-                 <>
-                   <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
-                     Generate Executive Report
-                   </button>
-                   <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handleStartPhase2}>
-                     Begin Phase 2: AI Agent Posture Validation
-                   </button>
-                   <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#eab308'}} onClick={handleStartPhase3}>
-                     Begin Phase 3: Advanced Command Center
-                   </button>
-                 </>
+                 <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
+                   Generate Executive Report
+                 </button>
               )}
-              <button className="btn-outline" style={{marginTop:'12px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
-                ↻ Restart Agent Workflow // End Part 1
-              </button>
            </div>
          );
 
@@ -521,15 +517,24 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               <h4 style={{color:'#14b8a6', marginBottom:'12px', borderBottom:'1px solid rgba(20,184,166,0.2)', paddingBottom:'8px'}}>EXECUTIVE SUMMARY</h4>
               <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px', fontSize:'11px'}}>
                  <div style={{color:'#94a3b8'}}>Paths Discovered:</div>
-                 <div style={{fontWeight:'bold', color:'white'}}>3 Critical Paths</div>
-                 <div style={{color:'#94a3b8'}}>PCS Before/After:</div>
-                 <div style={{fontWeight:'bold', color:'#10b981'}}>9.9 → 7.7</div>
+                 <div style={{fontWeight:'bold', color:'white'}}>Critical Attack Paths</div>
+                 <div style={{color:'#94a3b8'}}>PCS Resolution:</div>
+                 <div style={{fontWeight:'bold', color:'#10b981'}}>Neutralized Safely</div>
                  <div style={{color:'#94a3b8'}}>Remediation:</div>
-                 <div style={{fontWeight:'bold', color:'white'}}>WAF & MFA Enforced</div>
+                 <div style={{fontWeight:'bold', color:'white'}}>Choke Points Secured</div>
                  <div style={{color:'#94a3b8'}}>Time Elapsed:</div>
-                 <div style={{fontWeight:'bold', color:'white'}}>~15 Seconds</div>
-                 <div style={{color:'#94a3b8'}}>Assets Protected:</div>
-                 <div style={{fontWeight:'bold', color:'#10b981'}}>$2.4M Daily Vol. / AD Core</div>
+                 <div style={{fontWeight:'bold', color:'white'}}>Autonomous / Sub-Minute</div>
+              </div>
+              <div style={{marginTop: '16px'}}>
+                 <button className="btn-primary" style={{width:'100%'}} onClick={handleStartPhase2}>
+                   Begin Phase 2: AI Agent Posture Validation
+                 </button>
+                 <button className="btn-primary" style={{marginTop:'8px', width:'100%', background: '#eab308'}} onClick={handleStartPhase3}>
+                   Begin Phase 3: Advanced Command Center
+                 </button>
+                 <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
+                   ↻ Restart Agent Workflow // End Part 1
+                 </button>
               </div>
            </div>
          );
@@ -562,12 +567,11 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
            <div className="card-container">
               <h4 style={{color:'#10b981'}}>AI Supply Chain Secured</h4>
               <p style={{fontSize:'12px', marginTop:'12px'}}>⭐ PR successfully merged. Finance Dev Team notified organically. The PCS score neutralized completely.</p>
-              <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#eab308'}} onClick={handleStartPhase3}>
-                 Begin Phase 3: Advanced Command Center
-              </button>
-              <button className="btn-outline" style={{marginTop:'12px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
-                ↻ Supercharge Complete (Back to Start)
-              </button>
+              {chatPhase === 'phase2_complete' && (
+                 <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
+                   Generate Executive Report
+                 </button>
+              )}
            </div>
          );
 
@@ -625,9 +629,11 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
            <div className="card-container">
               <h4 style={{color:'#10b981'}}>No Viable Bypass Found</h4>
               <p style={{fontSize:'12px', marginTop:'8px'}}>Secondary traversal blocked. Remediation holds. Total environment PCS stabilized at 7.7.</p>
-              <button className="btn-outline" style={{marginTop:'12px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
-                ↻ Restart to Phase 1 Workflow
-              </button>
+              {chatPhase === 'phase3_complete' && (
+                 <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
+                   Generate Executive Report
+                 </button>
+              )}
            </div>
          );
 
@@ -639,7 +645,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     <div className="agent-chat-container" style={{ flex: 1, minHeight: 0 }}>
       <div className="chat-header">
         <div className="agent-avatar">🤖</div>
-        <div style={{fontWeight:600}}>Agent Ecosystem</div>
+        <div style={{fontWeight:600}}>Agent Iris</div>
       </div>
       
       <div className="chat-messages">
