@@ -36,6 +36,8 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   const [phase3Analysis, setPhase3Analysis] = useState(null);
   const [phase3Simulation, setPhase3Simulation] = useState(null);
   const [phase3Remediation, setPhase3Remediation] = useState(null);
+  const [phase3Policy, setPhase3Policy] = useState(null);
+  const [phase3Report, setPhase3Report] = useState(null);
   const [whatIfAnswer, setWhatIfAnswer] = useState('');
   const endOfChatRef = useRef(null);
   const initRef = useRef(false);
@@ -210,6 +212,8 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     setPhase3Analysis(null);
     setPhase3Simulation(null);
     setPhase3Remediation(null);
+    setPhase3Policy(null);
+    setPhase3Report(null);
     setWhatIfAnswer('');
     setSharedState({ activePaths: 0, pcsScore: 0, isSimulating: false });
     onAction('init_map'); 
@@ -344,6 +348,12 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     try {
       const result = await callAttackPathApi({ body: { intent: 'mitigate', mitigationId } });
       setPhase3Remediation(result);
+      const [policy, report] = await Promise.all([
+        callAttackPathApi({ body: { intent: 'policy', mitigationId } }),
+        callAttackPathApi({ body: { intent: 'report', mitigationId } }),
+      ]);
+      setPhase3Policy(policy);
+      setPhase3Report(report);
 
       setTimeout(() => {
          pushMessage({ sender: 'agent', identity: 'Remediation Agent', color: '#fb923c', type: 'text', content: `Applying ${result.mitigation.label}. Target: ${result.mitigation.targetNode}. Expected PCS reduction: ${result.mitigation.scoreReduction.toFixed(1)}.` }, 1000);
@@ -380,6 +390,20 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
        setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_complete' }]);
        setChatPhase('phase3_complete');
     }, 4500);
+  };
+
+  const handlePhase3PolicyPreview = () => {
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Show policy preview and approval package" }]);
+    setTimeout(() => {
+       setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_policy_preview' }]);
+    }, 700);
+  };
+
+  const handlePhase3Report = () => {
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Generate executive and technical report" }]);
+    setTimeout(() => {
+       setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_report' }]);
+    }, 700);
   };
 
   const handlePhase3NLQ = async (e) => {
@@ -652,6 +676,8 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                <div style={{fontWeight:'bold', color:'#ef4444'}}>{phase3Analysis?.pcsScore?.toFixed(1) || '-'}</div>
                <div style={{color:'#94a3b8'}}>Choke Point</div>
                <div style={{fontWeight:'bold'}}>{phase3Analysis?.chokePoints?.[0]?.label || '-'}</div>
+               <div style={{color:'#94a3b8'}}>Owners</div>
+               <div style={{fontWeight:'bold'}}>{phase3Analysis?.topPath?.owners?.join(', ') || '-'}</div>
              </div>
              <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Simulate} disabled={chatPhase !== 'phase3_selection'}>
                Simulate Prioritized Path & Blast Radius
@@ -676,12 +702,24 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                 <strong>Evidence:</strong> {phase3Simulation?.selectedPath?.evidence?.[0] || 'Evidence chain loading...'}
               </div>
               <div style={{marginTop:'12px'}}>
+                <h5 style={{color:'#94a3b8', fontSize:'10px', marginBottom:'8px'}}>PCS EXPLANATION</h5>
+                {(phase3Simulation?.selectedPath?.pcsBreakdown || []).map((item) => (
+                  <div key={item.label} style={{display:'grid', gridTemplateColumns:'1fr auto', gap:'8px', fontSize:'10px', borderBottom:'1px solid rgba(255,255,255,0.06)', padding:'5px 0'}}>
+                    <span title={item.weight}>{item.label}</span>
+                    <strong style={{color:item.label === 'Final PCS' ? '#ef4444' : '#cbd5e1'}}>{item.value}</strong>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:'12px'}}>
                  <h5 style={{color:'#94a3b8', fontSize:'10px', marginBottom:'8px'}}>MULTI-REMEDIATION TRADE-OFFS</h5>
                  {(phase3Simulation?.mitigationOptions || phase3Analysis?.mitigationOptions || []).map((option, index) => (
                    <div key={option.id} className="mitigation-card mt-2" style={{cursor:'pointer', borderColor: index === 0 ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)'}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate(option)}>
                      <div style={{fontWeight:600, color:index === 0 ? '#10b981' : '#93c5fd', fontSize:'11px'}}>Option {index + 1}: {option.label}</div>
                      <div style={{fontSize:'10px', color:'#94a3b8', marginTop:'4px'}}>
                        Closes {option.pathsClosed} path(s). PCS -{option.scoreReduction.toFixed(1)}. Deploy: {option.deployTime}. Downtime: {option.downtime}.
+                     </div>
+                     <div style={{fontSize:'10px', color:'#cbd5e1', marginTop:'4px'}}>
+                       Owner: {option.owner}. Approval: {option.approvalGate}.
                      </div>
                    </div>
                  ))}
@@ -696,6 +734,13 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                 Mitigation holds. Residual active paths: {phase3Remediation?.activePaths ?? '-'}. Residual PCS: {phase3Remediation?.pcsScore?.toFixed(1) ?? '-'}.
                 Would you like me to simulate what happens if the attacker attempts a bypass?
               </p>
+              <div style={{fontSize:'11px', color:'#cbd5e1', marginTop:'8px'}}>
+                Approval gate: {phase3Remediation?.mitigation?.approvalGate || '-'}<br/>
+                Rollback: {phase3Remediation?.mitigation?.rollback || '-'}
+              </div>
+              <button className="btn-outline" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3PolicyPreview} disabled={!phase3Policy}>
+                Show Policy Preview
+              </button>
               <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Bypass} disabled={chatPhase !== 'phase3_bypass'}>
                 Yes, simulate bypass
               </button>
@@ -708,11 +753,40 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               <h4 style={{color:'#10b981'}}>No Viable Bypass Found</h4>
               <p style={{fontSize:'12px', marginTop:'8px'}}>Secondary traversal blocked. Remediation holds. Total environment PCS stabilized at {phase3Remediation?.pcsScore?.toFixed(1) ?? 'the backend-computed residual score'}.</p>
               {whatIfAnswer && <p style={{fontSize:'11px', color:'#94a3b8', marginTop:'8px'}}>Latest what-if: {whatIfAnswer}</p>}
+              <button className="btn-outline" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Report} disabled={!phase3Report}>
+                Generate Agent Iris Report
+              </button>
               {chatPhase === 'phase3_complete' && (
                  <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
                    Generate Executive Report
                  </button>
               )}
+           </div>
+         );
+
+      case 'phase3_policy_preview':
+         return (
+           <div className="card-container" style={{borderColor:'#38bdf8'}}>
+              <h4 style={{color:'#38bdf8'}}>Policy-as-Code Preview</h4>
+              <p style={{fontSize:'11px', marginTop:'8px', color:'#cbd5e1'}}>Type: {phase3Policy?.type || '-'}</p>
+              <pre style={{background:'#0f172a', padding:'10px', borderRadius:'6px', marginTop:'10px', fontSize:'10px', color:'#e2e8f0', overflowX:'auto'}}>
+                {phase3Policy?.content || 'Policy preview unavailable.'}
+              </pre>
+              <p style={{fontSize:'11px', color:'#94a3b8', marginTop:'8px'}}>Approval: {phase3Remediation?.mitigation?.approvalGate || '-'}</p>
+           </div>
+         );
+
+      case 'phase3_report':
+         return (
+           <div className="card-container" style={{borderColor:'#14b8a6', background:'rgba(20,184,166,0.05)'}}>
+              <h4 style={{color:'#14b8a6'}}>Agent Iris Report Package</h4>
+              <div style={{display:'grid', gridTemplateColumns:'1fr', gap:'8px', marginTop:'10px', fontSize:'11px'}}>
+                <div><strong>Headline:</strong> {phase3Report?.headline || '-'}</div>
+                <div><strong>Business impact:</strong> {phase3Report?.businessImpact || '-'}</div>
+                <div><strong>Technical summary:</strong> {phase3Report?.technicalSummary || '-'}</div>
+                <div><strong>Recommended action:</strong> {phase3Report?.recommendedAction || '-'}</div>
+                <div><strong>Rollback:</strong> {phase3Report?.rollback || '-'}</div>
+              </div>
            </div>
          );
 

@@ -1,12 +1,12 @@
 export const edgeStyling = { stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1 };
 
 export const baseNodes = [
-  { id: 'A', position: { x: 50, y: 50 }, type: 'base', data: { label: 'Discovery Asset', assetType: 'DEV ENVIRONMENT', icon: '💻', status: 'normal', businessValue: 3 } },
-  { id: 'B', position: { x: 50, y: 150 }, type: 'base', data: { label: 'BOLA Exploit', assetType: 'SHADOW API', icon: '🔗', status: 'normal', businessValue: 8 } },
-  { id: 'C', position: { x: 50, y: 250 }, type: 'base', data: { label: 'Web Shell Exec', assetType: 'VM INSTANCE', icon: '🖥️', status: 'normal', businessValue: 6 } },
-  { id: 'D', position: { x: -100, y: 350 }, type: 'base', data: { label: 'Escape to Host', assetType: 'CONTAINER', icon: '📦', status: 'normal', businessValue: 6 } },
-  { id: 'F', position: { x: 200, y: 350 }, type: 'base', data: { label: 'NTLM Extraction', assetType: 'IDENTITY PROV', icon: '🔑', status: 'normal', businessValue: 9 } },
-  { id: 'G', position: { x: 50, y: 450 }, type: 'crown', data: { label: 'Active Directory Core', status: 'normal', businessValue: 10 } },
+  { id: 'A', position: { x: 50, y: 50 }, type: 'base', data: { label: 'Discovery Asset', assetType: 'DEV ENVIRONMENT', icon: '💻', status: 'normal', businessValue: 3, owner: 'DevOps' } },
+  { id: 'B', position: { x: 50, y: 150 }, type: 'base', data: { label: 'BOLA Exploit', assetType: 'SHADOW API', icon: '🔗', status: 'normal', businessValue: 8, owner: 'AppSec' } },
+  { id: 'C', position: { x: 50, y: 250 }, type: 'base', data: { label: 'Web Shell Exec', assetType: 'VM INSTANCE', icon: '🖥️', status: 'normal', businessValue: 6, owner: 'Platform' } },
+  { id: 'D', position: { x: -100, y: 350 }, type: 'base', data: { label: 'Escape to Host', assetType: 'CONTAINER', icon: '📦', status: 'normal', businessValue: 6, owner: 'Container Platform' } },
+  { id: 'F', position: { x: 200, y: 350 }, type: 'base', data: { label: 'NTLM Extraction', assetType: 'IDENTITY PROV', icon: '🔑', status: 'normal', businessValue: 9, owner: 'IAM' } },
+  { id: 'G', position: { x: 50, y: 450 }, type: 'crown', data: { label: 'Active Directory Core', status: 'normal', businessValue: 10, owner: 'IAM' } },
 ];
 
 export const baseEdges = [
@@ -31,12 +31,12 @@ export const aiEdges = [
 
 export const advancedNodes = [
   ...baseNodes,
-  { id: 'H', position: { x: -250, y: 50 }, type: 'base', data: { label: 'External DMZ', assetType: 'LOAD BALANCER', icon: '🌐', status: 'normal', businessValue: 5 } },
-  { id: 'I', position: { x: -250, y: 150 }, type: 'base', data: { label: 'Kubelet Exploit', assetType: 'K8S NODE', icon: '☸️', status: 'normal', businessValue: 7 } },
-  { id: 'J', position: { x: 350, y: 50 }, type: 'base', data: { label: 'Phishing Target', assetType: 'EMPLOYEE LAPTOP', icon: '🎣', status: 'normal', businessValue: 4 } },
-  { id: 'K', position: { x: 350, y: 150 }, type: 'base', data: { label: 'VPN Access', assetType: 'VPN GATEWAY', icon: '🛡️', status: 'normal', businessValue: 7 } },
-  { id: 'BR1', position: { x: 250, y: 250 }, type: 'base', data: { label: 'HR Database', assetType: 'INTERNAL DB', icon: '🗄️', status: 'normal', isBlastRadius: true, businessValue: 8 }, hidden: true },
-  { id: 'BR2', position: { x: 250, y: 150 }, type: 'base', data: { label: 'Finance API', assetType: 'MICROSERVICE', icon: '⚙️', status: 'normal', isBlastRadius: true, businessValue: 9 }, hidden: true },
+  { id: 'H', position: { x: -250, y: 50 }, type: 'base', data: { label: 'External DMZ', assetType: 'LOAD BALANCER', icon: '🌐', status: 'normal', businessValue: 5, owner: 'Network' } },
+  { id: 'I', position: { x: -250, y: 150 }, type: 'base', data: { label: 'Kubelet Exploit', assetType: 'K8S NODE', icon: '☸️', status: 'normal', businessValue: 7, owner: 'Kubernetes Platform' } },
+  { id: 'J', position: { x: 350, y: 50 }, type: 'base', data: { label: 'Phishing Target', assetType: 'EMPLOYEE LAPTOP', icon: '🎣', status: 'normal', businessValue: 4, owner: 'Endpoint Security' } },
+  { id: 'K', position: { x: 350, y: 150 }, type: 'base', data: { label: 'VPN Access', assetType: 'VPN GATEWAY', icon: '🛡️', status: 'normal', businessValue: 7, owner: 'Network' } },
+  { id: 'BR1', position: { x: 250, y: 250 }, type: 'base', data: { label: 'HR Database', assetType: 'INTERNAL DB', icon: '🗄️', status: 'normal', isBlastRadius: true, businessValue: 8, owner: 'HR Apps' }, hidden: true },
+  { id: 'BR2', position: { x: 250, y: 150 }, type: 'base', data: { label: 'Finance API', assetType: 'MICROSERVICE', icon: '⚙️', status: 'normal', isBlastRadius: true, businessValue: 9, owner: 'Finance Apps' }, hidden: true },
 ];
 
 export const advancedEdges = [
@@ -65,6 +65,9 @@ export const advancedScenario = {
       blockedEdges: ['eA-B'],
       deployTime: 'Seconds',
       downtime: 'None',
+      approvalGate: 'Auto-approved for 24-hour emergency containment',
+      policyType: 'AWS WAF rule',
+      rollback: 'Remove temporary managed rule from WAF policy',
       residualRisk: 'Medium',
       effectiveness: 0.62,
       summary: 'Fast temporary containment for the Shadow API ingress vector.',
@@ -76,6 +79,9 @@ export const advancedScenario = {
       blockedEdges: ['eA-B', 'eB-C', 'eB-BR1', 'eB-BR2'],
       deployTime: '4 hours',
       downtime: 'Maintenance window',
+      approvalGate: 'App owner and CAB approval required',
+      policyType: 'Application patch PR',
+      rollback: 'Revert application PR and redeploy previous container image',
       residualRisk: 'Low',
       effectiveness: 0.86,
       summary: 'Permanent application-layer fix that removes the BOLA pivot.',
@@ -87,6 +93,9 @@ export const advancedScenario = {
       blockedEdges: ['eC-F', 'eK-F', 'eF-G'],
       deployTime: 'Minutes',
       downtime: 'None',
+      approvalGate: 'IAM and Network dual approval',
+      policyType: 'NetworkPolicy + MFA conditional access',
+      rollback: 'Disable conditional access rule and restore previous segment policy',
       residualRisk: 'Very low',
       effectiveness: 0.94,
       summary: 'Blocks identity-provider lateral movement from multiple attack paths.',

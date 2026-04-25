@@ -61,6 +61,10 @@ Agent Iris now calls a Next.js API backend to:
 - rank remediation options by impact
 - apply a mitigation and recompute residual risk
 - answer simple what-if questions from graph data
+- explain PCS drivers with a visible score breakdown
+- route mitigation work to owners with approval and rollback context
+- preview policy-as-code or PR-style remediation payloads
+- generate an Agent Iris report package after mitigation
 
 ### Detailed Description
 
@@ -76,6 +80,8 @@ The engine provides deterministic graph reasoning functions:
 - `rankMitigations`: compares remediation options by paths closed, PCS reduction, residual PCS, downtime, and deploy time.
 - `applyMitigation`: applies blocked edges and recomputes residual attack paths.
 - `answerWhatIf`: answers common scenario questions such as VPN removal, Shadow API hardening, and best mitigation.
+- `createExecutiveReport`: produces report-ready business impact, technical summary, approval, and rollback content.
+- `generatePolicyPreview`: creates a mitigation-specific policy-as-code or pull-request preview.
 
 #### Structured Scenario Data
 
@@ -92,6 +98,10 @@ The scenario now stores graph data and security metadata together:
 - crown-jewel nodes
 - blast-radius assets
 - remediation options
+- owner/team metadata
+- approval gates
+- rollback instructions
+- policy generation metadata
 
 This gives the demo a clear path toward importing real CNAPP, SIEM, CSPM, BloodHound, or asset-inventory data later.
 
@@ -105,6 +115,8 @@ The API supports:
 - `POST /api/attack-path` with `intent: "simulate"`: simulates the selected attack path.
 - `POST /api/attack-path` with `intent: "mitigate"`: applies a mitigation and recomputes residual risk.
 - `POST /api/attack-path` with `intent: "what-if"`: returns a graph-backed what-if response.
+- `POST /api/attack-path` with `intent: "policy"`: returns policy-as-code or PR preview content for the chosen mitigation.
+- `POST /api/attack-path` with `intent: "report"`: returns executive and technical report content for the chosen mitigation.
 
 #### Frontend Integration
 
@@ -116,10 +128,14 @@ Phase 3 now calls the backend instead of relying only on canned values. The chat
 - backend-computed PCS
 - top choke point
 - selected path techniques
+- explainable PCS breakdown
 - evidence chain
 - direct blast-radius assets
 - remediation options with paths closed, PCS reduction, deploy time, and downtime
+- owner/team routing, approval gates, and rollback instructions
 - residual PCS and active paths after mitigation
+- policy-as-code preview after mitigation
+- Agent Iris report package after bypass testing
 - graph-backed what-if responses
 
 Updated `src/app/page.js`.
@@ -157,17 +173,24 @@ The scripts now describe the app as an integrated frontend/API service and expos
 9. The React Flow map highlights the backend-selected traversal and reveals exposed assets.
 10. Choose a remediation option.
 11. The backend applies the mitigation, recomputes residual paths, and sends the new PCS back to the UI.
-12. Simulate bypass and ask a what-if question in the Phase 3 input.
+12. Review the owner, approval gate, rollback guidance, and policy-as-code preview.
+13. Simulate bypass and ask a what-if question in the Phase 3 input.
+14. Generate the Agent Iris report package for executive and technical stakeholders.
 
 ## UI Changes
 
 - Phase 3 path selection now shows backend-ranked active paths, top PCS, and choke point.
+- Phase 3 path selection now shows owner/team routing for the top attack path.
 - Simulation card now shows backend-generated MITRE technique sequence.
 - Simulation card now displays evidence from the selected path.
+- Simulation card now shows an explainable PCS breakdown.
 - Blast-radius text now reflects actual modeled blast-radius assets.
 - Remediation cards are generated from backend-ranked options.
 - Remediation cards show paths closed, PCS reduction, deployment time, and downtime.
+- Remediation cards now show owner and approval gate context.
 - Post-mitigation state shows backend-computed residual active paths and residual PCS.
+- Post-mitigation state now exposes rollback instructions and a policy preview action.
+- The bypass-complete state now offers an Agent Iris report package.
 - What-if answers now come from `/api/attack-path` instead of a fixed canned response.
 
 ## Validation

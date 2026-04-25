@@ -16,6 +16,26 @@ const edgeRisk = (edge) => {
   return confidence * 0.28 + exploitability * 0.28 + privilegeGain * 0.22 + controlWeakness * 0.22;
 };
 
+const getNode = (scenario, nodeId) => scenario.nodes.find((item) => item.id === nodeId);
+
+const pathOwners = (scenario, nodeIds) => (
+  [...new Set(nodeIds.map((nodeId) => getNode(scenario, nodeId)?.data?.owner).filter(Boolean))]
+);
+
+const explainPcs = (scenario, path, blastRadius, averageEdgeRisk, pcs) => {
+  const crownValue = getNode(scenario, path.nodeIds.at(-1))?.data?.businessValue || 8;
+  const convergenceBonus = path.nodeIds.includes('B') || path.nodeIds.includes('F') ? 0.7 : 0;
+  const blastRadiusScore = blastRadius.length * 0.23;
+
+  return [
+    { label: 'Exploit confidence', value: Number((averageEdgeRisk * 10).toFixed(1)), weight: 'Composite edge confidence, exploitability, privilege gain, and control weakness.' },
+    { label: 'Crown-jewel value', value: Number((crownValue * 0.18).toFixed(1)), weight: `${nodeLabel(scenario, path.nodeIds.at(-1))} is rated ${crownValue}/10 business value.` },
+    { label: 'Blast radius', value: Number(blastRadiusScore.toFixed(1)), weight: `${blastRadius.length} modeled adjacent business asset(s) become exposed.` },
+    { label: 'Convergence bonus', value: Number(convergenceBonus.toFixed(1)), weight: convergenceBonus > 0 ? 'Path crosses a known choke point used by multiple routes.' : 'No convergence bonus on this route.' },
+    { label: 'Final PCS', value: Number(pcs.toFixed(1)), weight: 'Normalized 0-10 score used to rank autonomous action.' },
+  ];
+};
+
 const buildAdjacency = (scenario, blockedEdges = []) => {
   const blocked = new Set(blockedEdges);
   return scenario.edges.reduce((acc, edge) => {
@@ -60,6 +80,7 @@ export const discoverAttackPaths = (scenario = advancedScenario, blockedEdges = 
       const blastRadius = getBlastRadius(scenario, path.nodeIds, blockedEdges);
       const convergenceBonus = path.nodeIds.includes('B') || path.nodeIds.includes('F') ? 0.7 : 0;
       const pcs = clamp((averageEdgeRisk * 7.3) + (crownValue * 0.18) + (blastRadius.length * 0.23) + convergenceBonus, 0, 10);
+      const pcsScore = Number(pcs.toFixed(1));
 
       return {
         id: `PATH-${String(index + 1).padStart(3, '0')}`,
@@ -68,8 +89,10 @@ export const discoverAttackPaths = (scenario = advancedScenario, blockedEdges = 
         edgeIds: path.edgeIds,
         techniques: [...new Set(path.edges.map((edge) => edge.data?.techniqueId).filter(Boolean))],
         confidence: averageEdgeRisk,
-        pcs: Number(pcs.toFixed(1)),
+        pcs: pcsScore,
+        owners: pathOwners(scenario, path.nodeIds),
         blastRadius,
+        pcsBreakdown: explainPcs(scenario, path, blastRadius, averageEdgeRisk, pcs),
         evidence: path.edges.map((edge) => edge.data?.evidence).filter(Boolean),
       };
     })
@@ -90,7 +113,7 @@ export const getBlastRadius = (scenario = advancedScenario, compromisedNodes = [
       queue.push(edge.target);
       const node = scenario.nodes.find((item) => item.id === edge.target);
       if (node?.data?.isBlastRadius) {
-        blastAssets.push({ id: node.id, label: node.data.label, businessValue: node.data.businessValue || 5 });
+        blastAssets.push({ id: node.id, label: node.data.label, owner: node.data.owner, businessValue: node.data.businessValue || 5 });
       }
     }
   }
@@ -142,6 +165,7 @@ export const rankMitigations = (scenario = advancedScenario) => {
 
       return {
         ...mitigation,
+        owner: getNode(scenario, mitigation.targetNode)?.data?.owner || 'Security',
         pathsClosed,
         scoreReduction,
         residualPcs: afterTopScore,
@@ -149,6 +173,75 @@ export const rankMitigations = (scenario = advancedScenario) => {
       };
     })
     .sort((a, b) => b.rankScore - a.rankScore);
+};
+
+export const createExecutiveReport = (scenario = advancedScenario, mitigationId) => {
+  const before = analyzeScenario(scenario);
+  const after = mitigationId ? applyMitigation(scenario, mitigationId) : applyMitigation(scenario, rankMitigations(scenario)[0].id);
+  const mitigation = after.mitigation;
+
+  return {
+    headline: `${mitigation.label} reduces top PCS from ${before.pcsScore.toFixed(1)} to ${after.pcsScore.toFixed(1)}.`,
+    businessImpact: `${before.topPath?.blastRadius?.length || 0} adjacent business asset(s) are exposed before mitigation; residual active paths after mitigation: ${after.activePaths}.`,
+    technicalSummary: `Top path ${before.topPath?.id} uses ${(before.topPath?.techniques || []).join(', ')} across owners ${(before.topPath?.owners || []).join(', ')}.`,
+    recommendedAction: mitigation.summary,
+    approvalGate: mitigation.approvalGate,
+    rollback: mitigation.rollback,
+  };
+};
+
+export const generatePolicyPreview = (scenario = advancedScenario, mitigationId) => {
+  const mitigation = scenario.mitigations.find((item) => item.id === mitigationId) || rankMitigations(scenario)[0];
+
+  if (mitigation.id === 'segmentation-mfa') {
+    return {
+      type: mitigation.policyType,
+      content: `apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: block-identity-provider-lateral-movement
+spec:
+  podSelector:
+    matchLabels:
+      app: identity-provider
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              zone: trusted-admin
+---
+conditionalAccess:
+  control: hardware-mfa
+  target: identity-provider-admin-actions`,
+    };
+  }
+
+  if (mitigation.id === 'patch-shadow-api') {
+    return {
+      type: mitigation.policyType,
+      content: `pull_request:
+  title: "Patch Shadow API object authorization bypass"
+  owner: "AppSec"
+  changes:
+    - enforce object owner check before invoice retrieval
+    - add regression test for cross-tenant object access
+    - reject unauthenticated service-to-service calls`,
+    };
+  }
+
+  return {
+    type: mitigation.policyType,
+    content: `resource "aws_wafv2_web_acl" "shadow_api_containment" {
+  name  = "shadow-api-emergency-containment"
+  scope = "REGIONAL"
+
+  rule {
+    name     = "block-bola-pivot"
+    priority = 1
+    action { block {} }
+  }
+}`,
+  };
 };
 
 export const simulatePath = (scenario = advancedScenario, pathId) => {
