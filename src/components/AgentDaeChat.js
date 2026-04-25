@@ -836,7 +836,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
              style={{ padding: '8px 16px', fontSize: '11px', color: '#94a3b8', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
              onClick={() => setShowAudit(!showAudit)}
            >
-             <span style={{fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px'}}>Audit Trail & Compliance Log</span>
+             <span style={{fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px'}}>Audit Trail &amp; Compliance Log</span>
              <span>{showAudit ? '▼' : '▲'}</span>
            </div>
            
