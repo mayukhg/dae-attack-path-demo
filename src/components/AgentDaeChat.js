@@ -184,6 +184,13 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     }, 500);
   };
 
+  const handlePhase1Report = () => {
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Generate Agent Iris Report" }]);
+    setTimeout(() => {
+       setMessages(prev => [...prev, { sender: 'agent', type: 'phase1_report' }]);
+    }, 700);
+  };
+
   const handleGenerateReport = () => {
     setChatPhase('generating_report');
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Generate Executive Report" }]);
@@ -554,9 +561,14 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               <h4 style={{color:'#10b981'}}>Path Completely Severed</h4>
               <p style={{fontSize:'12px', marginTop:'12px'}}>⭐ Done! Your path validation summary has been sent. The PCS score dropped safely to 7.7.</p>
               {chatPhase === 'complete' && (
-                 <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
-                   Generate Executive Report
-                 </button>
+                 <>
+                   <button className="btn-outline" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase1Report}>
+                     Generate Agent Iris Report
+                   </button>
+                   <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
+                     Generate Executive Report
+                   </button>
+                 </>
               )}
            </div>
          );
@@ -623,6 +635,20 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
                    ↻ Restart Agent Workflow // End Part 1
                  </button>
+              </div>
+           </div>
+         );
+
+      case 'phase1_report':
+         return (
+           <div className="card-container" style={{borderColor:'#14b8a6', background:'rgba(20,184,166,0.05)'}}>
+              <h4 style={{color:'#14b8a6'}}>Agent Iris Report Package</h4>
+              <div style={{display:'grid', gridTemplateColumns:'1fr', gap:'8px', marginTop:'10px', fontSize:'11px'}}>
+                <div><strong>Headline:</strong> Critical Attack Path Severed via WAF &amp; MFA Circuit Breaker</div>
+                <div><strong>Business impact:</strong> Protected $2.4M in daily transaction volume from credential theft and API BOLA abuse.</div>
+                <div><strong>Technical summary:</strong> Validated lateral movement across UAT Dev to Shadow API. Deployed temporary WAF rules and enforced hardware MFA to sever the path at Node B.</div>
+                <div><strong>Recommended action:</strong> Monitor access logs for Node B. Schedule a permanent architectural review of the Shadow API.</div>
+                <div><strong>Rollback:</strong> Remove WAF rule &apos;mfa-circuit-breaker&apos; and disable MFA enforcement on Node B.</div>
               </div>
            </div>
          );
