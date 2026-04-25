@@ -44,7 +44,7 @@ macOS/Linux helpers:
 ./shutdown.sh
 ```
 
-## Codex Changes
+## Antigravity Changes
 
 ### Summary
 
