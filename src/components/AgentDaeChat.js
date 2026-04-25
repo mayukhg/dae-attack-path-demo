@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const mockPaths = [
   { id: 'Path 1: UAT Dev -> Shadow API', nexus: 'API BOLA Abuse', nodes: 5, score: 9.6 },
@@ -12,6 +12,20 @@ const TypingIndicator = () => (
   </div>
 );
 
+const callAttackPathApi = async (options = {}) => {
+  const response = await fetch('/api/attack-path', {
+    method: options.method || 'POST',
+    headers: options.method === 'GET' ? undefined : { 'Content-Type': 'application/json' },
+    body: options.method === 'GET' ? undefined : JSON.stringify(options.body || {}),
+  });
+
+  if (!response.ok) {
+    throw new Error('Attack path API request failed');
+  }
+
+  return response.json();
+};
+
 export default function AgentDaeChat({ onAction, setSharedState }) {
   const [messages, setMessages] = useState([]);
   const [chatPhase, setChatPhase] = useState('intro');
@@ -19,10 +33,14 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   const [isTyping, setIsTyping] = useState(false);
   const [showAudit, setShowAudit] = useState(false);
   const [auditLogs, setAuditLogs] = useState([]);
+  const [phase3Analysis, setPhase3Analysis] = useState(null);
+  const [phase3Simulation, setPhase3Simulation] = useState(null);
+  const [phase3Remediation, setPhase3Remediation] = useState(null);
+  const [whatIfAnswer, setWhatIfAnswer] = useState('');
   const endOfChatRef = useRef(null);
   const initRef = useRef(false);
 
-  const pushMessage = (msg, delay) => {
+  const pushMessage = useCallback((msg, delay) => {
     setIsTyping(true);
     setTimeout(() => {
       setIsTyping(false);
@@ -31,7 +49,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `${msg.identity || 'System'}: ${msg.content || 'Action executed'}` }]);
       }
     }, delay);
-  };
+  }, [chatPhase]);
 
   useEffect(() => {
     if (chatPhase === 'intro' && messages.length === 0 && !initRef.current) {
@@ -39,7 +57,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
       pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'intro_prompt' }, 1500);
     }
     endOfChatRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatPhase, messages.length]);
+  }, [chatPhase, messages.length, pushMessage]);
 
   const handleStartScoping = () => {
     setChatPhase('discovery');
@@ -189,6 +207,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     setMessages([]);
     setSelectedPath('');
     setChatPhase('intro');
+    setPhase3Analysis(null);
+    setPhase3Simulation(null);
+    setPhase3Remediation(null);
+    setWhatIfAnswer('');
     setSharedState({ activePaths: 0, pcsScore: 0, isSimulating: false });
     onAction('init_map'); 
   };
@@ -250,64 +272,99 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   };
 
   // --- Phase 3 Flows ---
-  const handleStartPhase3 = () => {
+  const handleStartPhase3 = async () => {
     setChatPhase('phase3_discovery');
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Begin Phase 3: Advanced Command Center" }]);
     
     setTimeout(() => {
         pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "Executing advanced parallel topography scan..." }, 1000);
         onAction('init_phase3_map');
-        setSharedState({ activePaths: 3, pcsScore: 0 }); 
+        setSharedState({ activePaths: 0, pcsScore: 0 }); 
     }, 500);
 
-    setTimeout(() => {
-        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "I've discovered 3 critical paths simultaneously. Path 1 is the highest priority because it converges with Path 2 at Node B (Shadow API) — this is a critical choke point that, if secured, collapses both paths." }, 4500);
-    }, 500);
+    try {
+      const result = await callAttackPathApi({ method: 'GET' });
+      setPhase3Analysis(result.analysis);
+      setSharedState({ activePaths: result.analysis.activePaths, pcsScore: result.analysis.pcsScore });
 
-    setTimeout(() => {
-        setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_selection' }]);
-        setChatPhase('phase3_selection');
-    }, 7500);
+      setTimeout(() => {
+          const choke = result.analysis.chokePoints[0];
+          pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: `I discovered ${result.analysis.activePaths} viable attack paths. ${result.analysis.topPath.title} is currently highest risk at PCS ${result.analysis.pcsScore.toFixed(1)}. The strongest convergence point is ${choke?.label || 'the Shadow API'}.` }, 4500);
+      }, 500);
+
+      setTimeout(() => {
+          setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_selection' }]);
+          setChatPhase('phase3_selection');
+      }, 7500);
+    } catch (error) {
+      setMessages(prev => [...prev, { sender: 'agent', type: 'text', content: `Backend analysis failed: ${error.message}` }]);
+      setChatPhase('intro');
+    }
   };
 
-  const handlePhase3Simulate = () => {
+  const handlePhase3Simulate = async () => {
     setChatPhase('phase3_simulating');
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Simulate Prioritized Path & Enumerate Blast Radius" }]);
-    onAction('simulate_phase3_path');
     setSharedState({ isSimulating: true });
-    setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `System: Path traversal initiated on Path 1` }]);
+    setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `System: Backend path traversal requested` }]);
     
-    setTimeout(() => {
-       pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: "Traversing Path 1 with confidence scoring and MITRE technique evaluation..." }, 500);
-    }, 500);
+    try {
+      const result = await callAttackPathApi({ body: { intent: 'simulate', pathId: phase3Analysis?.topPath?.id } });
+      setPhase3Simulation(result);
+      onAction('simulate_phase3_path', {
+        edgeIds: result.selectedPath.edgeIds,
+        nodeIds: result.selectedPath.nodeIds,
+      });
 
-    setTimeout(() => {
-       onAction('simulate_blast_radius');
-       setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_blast_radius' }]);
-       setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `Simulation Agent: Lateral movement achieved. 14 assets exposed.` }]);
-       setChatPhase('phase3_remediation_options');
-       setSharedState({ isSimulating: false, pcsScore: 9.9 });
-    }, 5500);
+      setTimeout(() => {
+         pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: `Traversing ${result.selectedPath.id} with ${result.selectedPath.techniques.join(', ')} and confidence scoring...` }, 500);
+      }, 500);
+
+      setTimeout(() => {
+         onAction('simulate_blast_radius', {
+           blastNodeIds: result.blastRadius.map((asset) => asset.id),
+         });
+         setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_blast_radius' }]);
+         setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `Simulation Agent: PCS ${result.selectedPath.pcs.toFixed(1)}. ${result.blastRadius.length} blast-radius assets exposed.` }]);
+         setChatPhase('phase3_remediation_options');
+         setSharedState({ isSimulating: false, pcsScore: result.selectedPath.pcs });
+      }, 5500);
+    } catch (error) {
+      setSharedState({ isSimulating: false });
+      setMessages(prev => [...prev, { sender: 'agent', type: 'text', content: `Simulation failed: ${error.message}` }]);
+    }
   };
 
-  const handlePhase3Mitigate = (option) => {
+  const handlePhase3Mitigate = async (option) => {
     setChatPhase('phase3_fixing');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: `Deploy ${option}` }]);
+    const mitigationId = option?.id || option;
+    const mitigationLabel = option?.label || option;
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: `Deploy ${mitigationLabel}` }]);
     
-    setTimeout(() => {
-       pushMessage({ sender: 'agent', identity: 'Remediation Agent', color: '#fb923c', type: 'text', content: `Applying mitigation. Target: Node B. Securing the choke point.` }, 1000);
-    }, 500);
-    
-    setTimeout(() => {
-       setMessages(prev => [...prev, { sender: 'agent', type: 'mitigation_success' }]);
-       onAction('secure_phase3_path'); 
-    }, 3000);
+    try {
+      const result = await callAttackPathApi({ body: { intent: 'mitigate', mitigationId } });
+      setPhase3Remediation(result);
 
-    setTimeout(() => {
-       setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_bypass_prompt' }]);
-       setChatPhase('phase3_bypass');
-       setSharedState({ pcsScore: 7.7, activePaths: 1 });
-    }, 6000);
+      setTimeout(() => {
+         pushMessage({ sender: 'agent', identity: 'Remediation Agent', color: '#fb923c', type: 'text', content: `Applying ${result.mitigation.label}. Target: ${result.mitigation.targetNode}. Expected PCS reduction: ${result.mitigation.scoreReduction.toFixed(1)}.` }, 1000);
+      }, 500);
+    
+      setTimeout(() => {
+         setMessages(prev => [...prev, { sender: 'agent', type: 'mitigation_success' }]);
+         onAction('secure_phase3_path', {
+           blockedEdgeIds: result.mitigation.blockedEdges,
+           targetNode: result.mitigation.targetNode,
+         }); 
+      }, 3000);
+
+      setTimeout(() => {
+         setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_bypass_prompt' }]);
+         setChatPhase('phase3_bypass');
+         setSharedState({ pcsScore: result.pcsScore, activePaths: result.activePaths });
+      }, 6000);
+    } catch (error) {
+      setMessages(prev => [...prev, { sender: 'agent', type: 'text', content: `Mitigation failed: ${error.message}` }]);
+    }
   };
 
   const handlePhase3Bypass = () => {
@@ -325,16 +382,23 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     }, 4500);
   };
 
-  const handlePhase3NLQ = (e) => {
+  const handlePhase3NLQ = async (e) => {
     e.preventDefault();
     const q = e.target.elements.q.value;
     if (!q) return;
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: q }]);
     e.target.reset();
     
-    setTimeout(() => {
-       pushMessage({ sender: 'agent', identity: 'Analytics Agent', color: '#6366f1', type: 'text', content: "Analyzing hypothetical scenario... If the VPN gateway (Node K) was lost, Path 3 would be entirely severed. The global PCS would reduce to 4.2, but 35 remote employees would lose access to the internal HR network." }, 1000);
-    }, 500);
+    try {
+      const result = await callAttackPathApi({ body: { intent: 'what-if', question: q } });
+      setWhatIfAnswer(result.answer);
+      setTimeout(() => {
+         pushMessage({ sender: 'agent', identity: 'Analytics Agent', color: '#6366f1', type: 'text', content: result.answer }, 1000);
+      }, 500);
+    } catch (error) {
+      setWhatIfAnswer('');
+      setMessages(prev => [...prev, { sender: 'agent', type: 'text', content: `What-if analysis failed: ${error.message}` }]);
+    }
   };
 
   // --- Render Helpers ---
@@ -555,7 +619,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                   <span style={{fontSize:'10px', background:'#fb923c', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>REMEDIATION AGENT</span>
               </div>
               <p style={{fontSize:'12px', marginBottom:'8px'}}>Simulation validated. The AI Agent is vulnerable. I have automatically drafted the exact architectural fix required to secure the egress perimeter.</p>
-              <p style={{fontSize:'12px', marginBottom:'12px'}}>Rather than creating a manual ticket, I have automatically compiled this fix into code and sent it as a Pull Request (PR) directly to the Finance Dev Team's native GitHub repository to completely eliminate friction. Do you authorize this commit?</p>
+              <p style={{fontSize:'12px', marginBottom:'12px'}}>Rather than creating a manual ticket, I have automatically compiled this fix into code and sent it as a Pull Request (PR) directly to the Finance Dev Team&apos;s native GitHub repository to completely eliminate friction. Do you authorize this commit?</p>
               <button className="btn-primary" style={{width:'100%'}} onClick={handlePhase2Mitigate} disabled={chatPhase !== 'phase2_remediation'}>
                 Authorize Dev Handoff & Secure
               </button>
@@ -580,7 +644,15 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container">
              <h4><span style={{color:'#facc15'}}>★</span> Multi-Path Prioritization</h4>
-             <p style={{fontSize:'12px', marginTop:'8px'}}>I have mapped 3 distinct attack vectors. Path 1 is the critical priority due to convergence.</p>
+             <p style={{fontSize:'12px', marginTop:'8px'}}>
+               Backend analysis ranked {phase3Analysis?.activePaths || 0} viable paths. Top path: <strong>{phase3Analysis?.topPath?.title || 'Calculating...'}</strong>.
+             </p>
+             <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px', marginTop:'12px', fontSize:'11px'}}>
+               <div style={{color:'#94a3b8'}}>Top PCS</div>
+               <div style={{fontWeight:'bold', color:'#ef4444'}}>{phase3Analysis?.pcsScore?.toFixed(1) || '-'}</div>
+               <div style={{color:'#94a3b8'}}>Choke Point</div>
+               <div style={{fontWeight:'bold'}}>{phase3Analysis?.chokePoints?.[0]?.label || '-'}</div>
+             </div>
              <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Simulate} disabled={chatPhase !== 'phase3_selection'}>
                Simulate Prioritized Path & Blast Radius
              </button>
@@ -594,22 +666,25 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>SIMULATION AGENT</span>
               </div>
               <h4 style={{color:'#ef4444'}}>Lateral Movement & Blast Radius</h4>
-              <p style={{fontSize:'12px', marginTop:'8px'}}>Simulation traversed successfully (T1190 → T1505 → T1003 → T1550). Shadow API breached.</p>
-              <p style={{fontSize:'12px', marginTop:'8px', fontWeight:'bold', color:'#fca5a5'}}>If this path is exploited, the attacker gains access to 14 additional assets including the production HR Database and Finance API.</p>
+              <p style={{fontSize:'12px', marginTop:'8px'}}>
+                Simulation traversed successfully ({phase3Simulation?.selectedPath?.techniques?.join(' -> ') || 'techniques calculated by backend'}).
+              </p>
+              <p style={{fontSize:'12px', marginTop:'8px', fontWeight:'bold', color:'#fca5a5'}}>
+                If exploited, the attacker reaches {phase3Simulation?.blastRadius?.length || 0} directly modeled blast-radius asset(s): {(phase3Simulation?.blastRadius || []).map((asset) => asset.label).join(', ') || 'none'}.
+              </p>
+              <div style={{marginTop:'12px', fontSize:'11px', color:'#cbd5e1'}}>
+                <strong>Evidence:</strong> {phase3Simulation?.selectedPath?.evidence?.[0] || 'Evidence chain loading...'}
+              </div>
               <div style={{marginTop:'12px'}}>
                  <h5 style={{color:'#94a3b8', fontSize:'10px', marginBottom:'8px'}}>MULTI-REMEDIATION TRADE-OFFS</h5>
-                 <div className="mitigation-card mt-2" style={{cursor:'pointer'}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate('WAF Rule')}>
-                   <div style={{fontWeight:600, color:'#10b981', fontSize:'11px'}}>Option 1: Emergency WAF Rule</div>
-                   <div style={{fontSize:'10px', color:'#94a3b8', marginTop:'4px'}}>Deploys in seconds. Blocks 90% of variants. (Temporary)</div>
-                 </div>
-                 <div className="mitigation-card mt-2" style={{cursor:'pointer', borderColor:'rgba(250,204,21,0.3)'}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate('Patch CVE-2023-50164')}>
-                   <div style={{fontWeight:600, color:'#facc15', fontSize:'11px'}}>Option 2: Patch CVE-2023-50164</div>
-                   <div style={{fontSize:'10px', color:'#94a3b8', marginTop:'4px'}}>Permanent fix. Requires 4-hour maintenance window.</div>
-                 </div>
-                 <div className="mitigation-card mt-2" style={{cursor:'pointer', borderColor:'rgba(59,130,246,0.3)'}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate('Network Seg + MFA')}>
-                   <div style={{fontWeight:600, color:'#3b82f6', fontSize:'11px'}}>Option 3: Segment Network + MFA</div>
-                   <div style={{fontSize:'10px', color:'#94a3b8', marginTop:'4px'}}>Blocks lateral movement entirely. Zero downtime.</div>
-                 </div>
+                 {(phase3Simulation?.mitigationOptions || phase3Analysis?.mitigationOptions || []).map((option, index) => (
+                   <div key={option.id} className="mitigation-card mt-2" style={{cursor:'pointer', borderColor: index === 0 ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)'}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate(option)}>
+                     <div style={{fontWeight:600, color:index === 0 ? '#10b981' : '#93c5fd', fontSize:'11px'}}>Option {index + 1}: {option.label}</div>
+                     <div style={{fontSize:'10px', color:'#94a3b8', marginTop:'4px'}}>
+                       Closes {option.pathsClosed} path(s). PCS -{option.scoreReduction.toFixed(1)}. Deploy: {option.deployTime}. Downtime: {option.downtime}.
+                     </div>
+                   </div>
+                 ))}
               </div>
            </div>
          );
@@ -617,7 +692,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
       case 'phase3_bypass_prompt':
          return (
            <div className="card-container border-green">
-              <p style={{fontSize:'12px'}}>Mitigation holds. Would you like me to simulate what happens if this WAF rule is bypassed by an advanced persistent threat?</p>
+              <p style={{fontSize:'12px'}}>
+                Mitigation holds. Residual active paths: {phase3Remediation?.activePaths ?? '-'}. Residual PCS: {phase3Remediation?.pcsScore?.toFixed(1) ?? '-'}.
+                Would you like me to simulate what happens if the attacker attempts a bypass?
+              </p>
               <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Bypass} disabled={chatPhase !== 'phase3_bypass'}>
                 Yes, simulate bypass
               </button>
@@ -628,7 +706,8 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container">
               <h4 style={{color:'#10b981'}}>No Viable Bypass Found</h4>
-              <p style={{fontSize:'12px', marginTop:'8px'}}>Secondary traversal blocked. Remediation holds. Total environment PCS stabilized at 7.7.</p>
+              <p style={{fontSize:'12px', marginTop:'8px'}}>Secondary traversal blocked. Remediation holds. Total environment PCS stabilized at {phase3Remediation?.pcsScore?.toFixed(1) ?? 'the backend-computed residual score'}.</p>
+              {whatIfAnswer && <p style={{fontSize:'11px', color:'#94a3b8', marginTop:'8px'}}>Latest what-if: {whatIfAnswer}</p>}
               {chatPhase === 'phase3_complete' && (
                  <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
                    Generate Executive Report
