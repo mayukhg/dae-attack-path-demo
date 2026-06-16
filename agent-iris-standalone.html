@@ -732,7 +732,7 @@ function selectPath1(pathId) {
   const card = document.getElementById('pc-' + pathId.replace(/\s/g,'_'));
   if(card) card.classList.add('selected');
   userBubble(`Validate ${pathId}`);
-  delay(() => agentBubble('Simulation Agent','#a855f7','av-purple','Simulation Agent engaging. I will execute a safe exploit validation simulating lateral movement along this path.'), 1000);
+  delay(() => agentBubble('Simulation Agent','#a855f7','av-purple','Attack Path Validation Agent engaging. I will execute a safe exploit validation simulating lateral movement along this path.'), 1000);
   setTimeout(() => {
     hideTyping();
     appendMsg('agent','av-purple','','',`<div class="card card-dark"><button class="btn btn-white btn-full" onclick="runP1Sim()" id="p1-sim-btn">Validate Attack Path</button><button class="btn btn-outline btn-full" style="margin-top:7px;font-size:11px;" onclick="goBackToChainSelection()">↩ Choose a Different Path</button></div>`);

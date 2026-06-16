@@ -183,7 +183,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     
     // Pass off to Simulation Agent
     setTimeout(() => {
-       pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: `Simulation Agent engaging. I will execute a safe exploit validation simulating a lateral movement chain along this path.` }, 1500);
+       pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: `Attack Path Validation Agent engaging. I will execute a safe exploit validation simulating a lateral movement chain along this path.` }, 1500);
     }, 500);
 
     setTimeout(() => {
