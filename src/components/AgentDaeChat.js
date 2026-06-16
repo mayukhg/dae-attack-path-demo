@@ -619,53 +619,6 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <li>Audit-Ready Compliance with a time-series action ledger</li>
               </ul>
 
-              <div style={{marginBottom: '16px'}}>
-                <p style={{fontSize: '11px', color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold'}}>
-                  Active Attack Paths (3–4 Hops) <span style={{color:'#ef4444'}}>●</span>
-                </p>
-                {[
-                  {
-                    label: 'Path 2 · PCS 10.0', nexus: 'Container Escape', hops: 3,
-                    chain: [
-                      { icon: '🌐', name: 'External DMZ' },
-                      { icon: '☸️', name: 'K8S Node', tech: 'T1611' },
-                      { icon: '📦', name: 'Container', tech: 'T1611' },
-                      { icon: '👑', name: 'AD Core', tech: 'T1068', crown: true },
-                    ]
-                  },
-                  {
-                    label: 'Path 3 · PCS 10.0', nexus: 'Credential Theft', hops: 4,
-                    chain: [
-                      { icon: '🎣', name: 'Employee Laptop' },
-                      { icon: '🛡️', name: 'VPN Gateway', tech: 'T1566' },
-                      { icon: '🔑', name: 'Identity Prov', tech: 'T1078' },
-                      { icon: '👑', name: 'AD Core', tech: 'T1550', crown: true },
-                    ]
-                  }
-                ].map((path, pi) => (
-                  <div key={pi} style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '10px', marginBottom: '8px'}}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
-                      <span style={{fontSize: '11px', fontWeight: 700, color: '#fca5a5'}}>{path.label}</span>
-                      <span style={{fontSize: '9px', background: 'rgba(239,68,68,0.15)', color: '#fca5a5', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(239,68,68,0.3)'}}>{path.hops} hops · {path.nexus}</span>
-                    </div>
-                    <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px'}}>
-                      {path.chain.map((node, ni) => (
-                        <span key={ni} style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
-                          <span style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'}}>
-                            <span style={{fontSize: '16px'}}>{node.icon}</span>
-                            <span style={{fontSize: '9px', color: node.crown ? '#facc15' : '#94a3b8', fontWeight: node.crown ? 700 : 400, whiteSpace: 'nowrap'}}>{node.name}</span>
-                            {node.tech && <span style={{fontSize: '8px', color: '#475569', fontFamily: 'monospace'}}>{node.tech}</span>}
-                          </span>
-                          {ni < path.chain.length - 1 && (
-                            <span style={{color: '#ef4444', fontSize: '12px', marginBottom: '14px'}}>→</span>
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
               <p style={{marginBottom: '16px', fontSize: '12px', fontWeight: 'bold', color: '#facc15'}}>
                  Which demonstration phase would you like to execute?
               </p>
@@ -683,10 +636,59 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
            </div>
          );
       
-      case 'path_selection':
+      case 'path_selection': {
+        const attackChains = [
+          {
+            label: 'Path 2 · PCS 10.0', nexus: 'Container Escape', hops: 3,
+            chain: [
+              { icon: '🌐', name: 'External DMZ' },
+              { icon: '☸️', name: 'K8S Node', tech: 'T1611' },
+              { icon: '📦', name: 'Container', tech: 'T1611' },
+              { icon: '👑', name: 'AD Core', tech: 'T1068', crown: true },
+            ]
+          },
+          {
+            label: 'Path 3 · PCS 10.0', nexus: 'Credential Theft', hops: 4,
+            chain: [
+              { icon: '🎣', name: 'Employee Laptop' },
+              { icon: '🛡️', name: 'VPN Gateway', tech: 'T1566' },
+              { icon: '🔑', name: 'Identity Prov', tech: 'T1078' },
+              { icon: '👑', name: 'AD Core', tech: 'T1550', crown: true },
+            ]
+          }
+        ];
         return (
           <div className="card-container">
             <h4><span style={{color:'#facc15'}}>★</span> Recommendation</h4>
+
+            <div style={{margin: '12px 0'}}>
+              <p style={{fontSize: '11px', color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold'}}>
+                Active Attack Paths (3–4 Hops) <span style={{color:'#ef4444'}}>●</span>
+              </p>
+              {attackChains.map((path, pi) => (
+                <div key={pi} style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '10px', marginBottom: '8px'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                    <span style={{fontSize: '11px', fontWeight: 700, color: '#fca5a5'}}>{path.label}</span>
+                    <span style={{fontSize: '9px', background: 'rgba(239,68,68,0.15)', color: '#fca5a5', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(239,68,68,0.3)'}}>{path.hops} hops · {path.nexus}</span>
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px'}}>
+                    {path.chain.map((node, ni) => (
+                      <span key={ni} style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
+                        <span style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'}}>
+                          <span style={{fontSize: '16px'}}>{node.icon}</span>
+                          <span style={{fontSize: '9px', color: node.crown ? '#facc15' : '#94a3b8', fontWeight: node.crown ? 700 : 400, whiteSpace: 'nowrap'}}>{node.name}</span>
+                          {node.tech && <span style={{fontSize: '8px', color: '#475569', fontFamily: 'monospace'}}>{node.tech}</span>}
+                        </span>
+                        {ni < path.chain.length - 1 && (
+                          <span style={{color: '#ef4444', fontSize: '12px', marginBottom: '14px'}}>→</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="cve-list mt-2">
               {msg.data.map(p => (
                 <div key={p.id} className={`cve-card ${selectedPath === p.id ? 'selected' : ''}`} onClick={() => handlePathSelect(p.id)}>
@@ -699,6 +701,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
             </button>
           </div>
         );
+      }
 
       case 'assessment_action':
          return (
