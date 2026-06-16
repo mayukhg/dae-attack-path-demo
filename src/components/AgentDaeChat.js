@@ -622,7 +622,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </ul>
 
               <p style={{marginBottom: '12px', fontSize: '12px', fontWeight: 'bold', color: '#facc15'}}>
-                 Which demonstration phase would you like to execute?
+                 Which agentic workflow would you like to execute?
               </p>
               <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                  <button className="btn-primary" style={{width:'100%'}} onClick={handleStartScoping} disabled={chatPhase !== 'intro'}>
