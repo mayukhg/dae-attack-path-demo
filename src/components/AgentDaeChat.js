@@ -671,13 +671,13 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </p>
               <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                  <button className="btn-primary" style={{width:'100%'}} onClick={handleStartScoping} disabled={chatPhase !== 'intro'}>
-                   Phase 1: Critical Attack Path Discovery
+                   Critical Attack Path Discovery
                  </button>
                  <button className="btn-primary" style={{width:'100%', background: '#10b981'}} onClick={handleStartPhase2} disabled={chatPhase !== 'intro'}>
-                   Phase 2: AI Agent Posture Validation
+                   AI Agent Posture Validation
                  </button>
                  <button className="btn-primary" style={{width:'100%', background: '#eab308'}} onClick={handleStartPhase3} disabled={chatPhase !== 'intro'}>
-                   Phase 3: Advanced Command Center
+                   Advanced Command Center
                  </button>
               </div>
            </div>
@@ -847,10 +847,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </div>
               <div style={{marginTop: '16px'}}>
                  <button className="btn-primary" style={{width:'100%'}} onClick={handleStartPhase2}>
-                   Begin Phase 2: AI Agent Posture Validation
+                   AI Agent Posture Validation
                  </button>
                  <button className="btn-primary" style={{marginTop:'8px', width:'100%', background: '#eab308'}} onClick={handleStartPhase3}>
-                   Begin Phase 3: Advanced Command Center
+                   Advanced Command Center
                  </button>
                  <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
                    ↻ Restart Agent Workflow // End Part 1
