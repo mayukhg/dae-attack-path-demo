@@ -3,7 +3,7 @@ import AgentDaeChat from '../components/AgentDaeChat';
 
 export default function Dashboard() {
   return (
-    <div style={{
+    <div suppressHydrationWarning style={{
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
