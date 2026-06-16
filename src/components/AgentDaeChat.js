@@ -267,15 +267,28 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
   const handleWhatIf = () => {
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "What if we move this database to a different VPC?" }]);
-    
+
     setTimeout(() => {
-       pushMessage({ 
-         sender: 'agent', 
-         identity: 'Simulation Agent', 
-         color: '#a855f7', 
-         type: 'what_if_result' 
+       pushMessage({
+         sender: 'agent',
+         identity: 'Simulation Agent',
+         color: '#a855f7',
+         type: 'what_if_result'
        }, 1500);
     }, 500);
+  };
+
+  const handleBackToPathSelection = () => {
+    setMessages(prev => {
+      const idx = prev.findIndex(m => m.type === 'path_selection');
+      return idx === -1 ? prev : prev.slice(0, idx + 1);
+    });
+    setSelectedPath('');
+    setChatPhase('selection');
+  };
+
+  const scrollToMitigationOptions = () => {
+    document.querySelector('.mitigation-options-card')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleGenerateReport = () => {
@@ -588,16 +601,71 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </p>
               <p style={{marginBottom: '4px', fontSize: '12px', color: '#94a3b8'}}>I perform the following actions:</p>
               <ul style={{fontSize: '12px', paddingLeft: '24px', marginBottom: '12px', color: '#cbd5e1', listStyleType: 'disc'}}>
-                 <li>Autonomous critical attack path discovery</li>
-                 <li>Real-time Lateral Movement Simulation</li>
-                 <li>Target-specific Threat Remediation</li>
+                 <li>Autonomous multi-path discovery &amp; PCS risk ranking</li>
+                 <li>Real-time lateral movement &amp; blast radius simulation</li>
+                 <li>Empirical exploit validation via TruConfirm (cryptographic proof)</li>
+                 <li>AI supply chain &amp; prompt injection posture assessment</li>
+                 <li>Prioritized choke-point remediation with Policy-as-Code export</li>
+                 <li>What-if sandbox scenario modeling</li>
+                 <li>Audit trail logging &amp; executive report generation</li>
               </ul>
               <p style={{marginBottom: '4px', fontSize: '12px', color: '#94a3b8'}}>Which give you the following benefits:</p>
               <ul style={{fontSize: '12px', paddingLeft: '24px', marginBottom: '16px', color: '#cbd5e1', listStyleType: 'disc'}}>
-                 <li>Drastically Reduced MTTR</li>
-                 <li>Preemptive Choke-point Identification</li>
-                 <li>Elimination of Legacy Manual Friction</li>
+                 <li>Drastically Reduced MTTR via sub-minute autonomous remediation</li>
+                 <li>Preemptive Choke-point Identification across competing attack paths</li>
+                 <li>Empirically Proven Risk — exploit-level proof, not theoretical CVSS scores</li>
+                 <li>AI Supply Chain Visibility treated as a first-class attack surface</li>
+                 <li>Zero-friction Dev Handoff via automatic GitHub Pull Requests</li>
+                 <li>Audit-Ready Compliance with a time-series action ledger</li>
               </ul>
+
+              <div style={{marginBottom: '16px'}}>
+                <p style={{fontSize: '11px', color: '#94a3b8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 'bold'}}>
+                  Active Attack Paths (3–4 Hops) <span style={{color:'#ef4444'}}>●</span>
+                </p>
+                {[
+                  {
+                    label: 'Path 2 · PCS 10.0', nexus: 'Container Escape', hops: 3,
+                    chain: [
+                      { icon: '🌐', name: 'External DMZ' },
+                      { icon: '☸️', name: 'K8S Node', tech: 'T1611' },
+                      { icon: '📦', name: 'Container', tech: 'T1611' },
+                      { icon: '👑', name: 'AD Core', tech: 'T1068', crown: true },
+                    ]
+                  },
+                  {
+                    label: 'Path 3 · PCS 10.0', nexus: 'Credential Theft', hops: 4,
+                    chain: [
+                      { icon: '🎣', name: 'Employee Laptop' },
+                      { icon: '🛡️', name: 'VPN Gateway', tech: 'T1566' },
+                      { icon: '🔑', name: 'Identity Prov', tech: 'T1078' },
+                      { icon: '👑', name: 'AD Core', tech: 'T1550', crown: true },
+                    ]
+                  }
+                ].map((path, pi) => (
+                  <div key={pi} style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', padding: '10px', marginBottom: '8px'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                      <span style={{fontSize: '11px', fontWeight: 700, color: '#fca5a5'}}>{path.label}</span>
+                      <span style={{fontSize: '9px', background: 'rgba(239,68,68,0.15)', color: '#fca5a5', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(239,68,68,0.3)'}}>{path.hops} hops · {path.nexus}</span>
+                    </div>
+                    <div style={{display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px'}}>
+                      {path.chain.map((node, ni) => (
+                        <span key={ni} style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
+                          <span style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'}}>
+                            <span style={{fontSize: '16px'}}>{node.icon}</span>
+                            <span style={{fontSize: '9px', color: node.crown ? '#facc15' : '#94a3b8', fontWeight: node.crown ? 700 : 400, whiteSpace: 'nowrap'}}>{node.name}</span>
+                            {node.tech && <span style={{fontSize: '8px', color: '#475569', fontFamily: 'monospace'}}>{node.tech}</span>}
+                          </span>
+                          {ni < path.chain.length - 1 && (
+                            <span style={{color: '#ef4444', fontSize: '12px', marginBottom: '14px'}}>→</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <p style={{marginBottom: '16px', fontSize: '12px', fontWeight: 'bold', color: '#facc15'}}>
                  Which demonstration phase would you like to execute?
               </p>
@@ -626,6 +694,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                 </div>
               ))}
             </div>
+            <button className="btn-outline" style={{marginTop:'12px', width:'100%', fontSize:'11px', borderColor:'#475569', color:'#94a3b8'}} onClick={handleAgentReset}>
+              ↩ Back to Phase Selection
+            </button>
           </div>
         );
 
@@ -634,6 +705,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
            <div className="card-container text-right">
              <button className="btn-primary" onClick={handleRunAssessment} disabled={chatPhase !== 'selection'}>
                Simulate Attack Path
+             </button>
+             <button className="btn-outline" style={{marginTop:'8px', width:'100%', fontSize:'11px', borderColor:'#475569', color:'#94a3b8'}} onClick={handleBackToPathSelection} disabled={chatPhase !== 'selection'}>
+               ↩ Choose a Different Path
              </button>
            </div>
          );
@@ -651,12 +725,15 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               <button className="btn-outline" style={{width:'100%'}} onClick={handleViewRemediation} disabled={chatPhase !== 'remediation_options'}>
                 View Remediation Options
               </button>
+              <button className="btn-outline" style={{marginTop:'8px', width:'100%', fontSize:'11px', borderColor:'#475569', color:'#94a3b8'}} onClick={handleBackToPathSelection} disabled={chatPhase !== 'remediation_options'}>
+                ↩ Choose a Different Path
+              </button>
            </div>
          );
 
       case 'mitigation_options':
          return (
-           <div className="card-container">
+           <div className="card-container mitigation-options-card">
              <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
                  <span style={{fontSize:'10px', background:'#fb923c', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>REMEDIATION AGENT</span>
              </div>
@@ -730,6 +807,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 }`}
               </pre>
               <p style={{fontSize:'12px', marginTop:'8px'}}>The Terraform snippet is ready. You can merge this directly into your GitOps pipeline.</p>
+              <button className="btn-outline" style={{marginTop:'12px', width:'100%', fontSize:'11px', borderColor:'#475569', color:'#94a3b8'}} onClick={scrollToMitigationOptions}>
+                ↩ Back to Remediation Options
+              </button>
            </div>
          );
 
@@ -745,6 +825,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <li style={{marginBottom:'4px'}}>The PCS score of our Domain Admin path drops from 9.9 to <strong>3.2</strong>.</li>
                  <li><span style={{color: '#facc15', fontWeight:'bold'}}>Warning:</span> It introduces an estimated 45ms latency for the Finance Application.</li>
               </ul>
+              <button className="btn-outline" style={{marginTop:'12px', width:'100%', fontSize:'11px', borderColor:'#475569', color:'#94a3b8'}} onClick={scrollToMitigationOptions}>
+                ↩ Back to Remediation Options
+              </button>
            </div>
          );
 
