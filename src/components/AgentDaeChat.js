@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { advancedScenario } from '../data/attackScenarios';
+import WalkthroughModal from './WalkthroughModal';
 
 const mockPaths = [
   { id: 'Path 1: UAT Dev -> Shadow API', nexus: 'API BOLA Abuse', nodes: 5, score: 9.6 },
@@ -76,6 +77,7 @@ const callAttackPathApi = async (options = {}) => {
 export default function AgentDaeChat({ onAction, setSharedState }) {
   const [messages, setMessages] = useState([]);
   const [chatPhase, setChatPhase] = useState('intro');
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
   const [selectedPath, setSelectedPath] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showAudit, setShowAudit] = useState(false);
@@ -619,7 +621,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <li>Audit-Ready Compliance with a time-series action ledger</li>
               </ul>
 
-              <p style={{marginBottom: '16px', fontSize: '12px', fontWeight: 'bold', color: '#facc15'}}>
+              <p style={{marginBottom: '12px', fontSize: '12px', fontWeight: 'bold', color: '#facc15'}}>
                  Which demonstration phase would you like to execute?
               </p>
               <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
@@ -631,6 +633,14 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  </button>
                  <button className="btn-primary" style={{width:'100%', background: '#eab308'}} onClick={handleStartPhase3} disabled={chatPhase !== 'intro'}>
                    Advanced Command Center
+                 </button>
+                 <button
+                   className="btn-outline"
+                   style={{width:'100%', marginTop:'4px', borderColor:'#3b82f6', color:'#93c5fd', fontSize:'11px'}}
+                   onClick={() => setShowWalkthrough(true)}
+                   disabled={chatPhase !== 'intro'}
+                 >
+                   🗺️ View Agent Walkthrough
                  </button>
               </div>
            </div>
@@ -1126,6 +1136,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
   return (
     <div className="agent-chat-container" style={{ flex: 1, minHeight: 0 }}>
+      {showWalkthrough && <WalkthroughModal onClose={() => setShowWalkthrough(false)} />}
       <div className="chat-header">
         <div className="agent-avatar">🤖</div>
         <div style={{fontWeight:600}}>Agent Iris</div>
