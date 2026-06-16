@@ -858,7 +858,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                    Advanced Command Center
                  </button>
                  <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
-                   ↻ Restart Agent Workflow // End Part 1
+                   ↩ Back to Main Menu
                  </button>
               </div>
            </div>
@@ -897,6 +897,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                    Generate Executive Report
                  </button>
               )}
+              <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
+                ↩ Back to Main Menu
+              </button>
            </div>
          );
 
@@ -998,6 +1001,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                    Generate Executive Report
                  </button>
               )}
+              <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
+                ↩ Back to Main Menu
+              </button>
            </div>
          );
 
@@ -1024,6 +1030,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                 <div><strong>Recommended action:</strong> {phase3Report?.recommendedAction || '-'}</div>
                 <div><strong>Rollback:</strong> {phase3Report?.rollback || '-'}</div>
               </div>
+              <button className="btn-outline" style={{marginTop:'12px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
+                ↩ Back to Main Menu
+              </button>
            </div>
          );
 

@@ -795,7 +795,7 @@ function deployP1Fix() {
       <p class="card-p">⭐ Done! Your path validation summary has been sent. PCS dropped safely to <strong style="color:var(--green)">7.7</strong>.</p>
       <div class="btn-row">
         <button class="btn btn-teal btn-full" onclick="generateP1Report()">Generate Executive Report</button>
-        <button class="btn btn-outline btn-full" onclick="initIntro()">↻ Restart</button>
+        <button class="btn btn-outline btn-full" onclick="initIntro()">↩ Back to Main Menu</button>
       </div>
     </div>`;
     appendMsg('agent','av-green','','',html);
@@ -868,7 +868,7 @@ function deployP2Fix() {
       <p class="card-p">⭐ PR successfully merged. Finance Dev Team notified. PCS neutralized completely.</p>
       <div class="btn-row">
         <button class="btn btn-teal btn-full" onclick="generateP1Report()">Generate Executive Report</button>
-        <button class="btn btn-outline btn-full" onclick="initIntro()">↻ Restart</button>
+        <button class="btn btn-outline btn-full" onclick="initIntro()">↩ Back to Main Menu</button>
       </div>
     </div>`;
     appendMsg('agent','av-green','','',html);
@@ -1202,6 +1202,7 @@ function simulateBypass() {
       <p class="card-p">Secondary traversal blocked. Remediation holds. Environment PCS stabilized at <strong style="color:var(--green)">${state.phase3Mitigation?.pcsScore?.toFixed(1) ?? '1.6'}</strong>.</p>
       <div class="btn-row">
         <button class="btn btn-white btn-full" onclick="showP3Report()">Generate Agent Iris Report</button>
+        <button class="btn btn-outline btn-full" onclick="initIntro()">↩ Back to Main Menu</button>
       </div>
     </div>`;
     appendMsg('agent','av-green','','',html);
@@ -1223,7 +1224,7 @@ function showP3Report() {
         <div><strong>Rollback:</strong> ${r.rollback}</div>
       </div>
       <div class="btn-row" style="margin-top:14px;">
-        <button class="btn btn-outline btn-full" onclick="initIntro()">↻ Restart Agent Workflow</button>
+        <button class="btn btn-outline btn-full" onclick="initIntro()">↩ Back to Main Menu</button>
       </div>
     </div>`;
     appendMsg('agent','av-teal','Reporting Agent','#14b8a6',html);
