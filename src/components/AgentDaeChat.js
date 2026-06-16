@@ -181,9 +181,9 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     setSelectedPath(pathId);
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: `Validate ${pathId}` }]);
     
-    // Pass off to Simulation Agent
+    // Pass off to Attack Path Validation Agent
     setTimeout(() => {
-       pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: `Attack Path Validation Agent engaging. I will execute a safe exploit validation simulating a lateral movement chain along this path.` }, 1500);
+       pushMessage({ sender: 'agent', identity: 'Attack Path Validation Agent', color: '#a855f7', type: 'text', content: `Attack Path Validation Agent engaging. I will execute a safe exploit validation simulating a lateral movement chain along this path.` }, 1500);
     }, 500);
 
     setTimeout(() => {
@@ -273,7 +273,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     setTimeout(() => {
        pushMessage({
          sender: 'agent',
-         identity: 'Simulation Agent',
+         identity: 'Attack Path Validation Agent',
          color: '#a855f7',
          type: 'what_if_result'
        }, 1500);
@@ -354,7 +354,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
      onAction('simulate_ai_path');
      
      setTimeout(() => {
-        pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: "I am now taking over to conduct an automated security review at AI-speed without requiring manual DevOps reviews. I am simulating an external Prompt Injection attack against the Finance AI Agent to see if it can be manipulated into leaking the Customer Root Database." }, 1000);
+        pushMessage({ sender: 'agent', identity: 'Attack Path Validation Agent', color: '#a855f7', type: 'text', content: "I am now taking over to conduct an automated security review at AI-speed without requiring manual DevOps reviews. I am simulating an external Prompt Injection attack against the Finance AI Agent to see if it can be manipulated into leaking the Customer Root Database." }, 1000);
      }, 500);
 
      setTimeout(() => {
@@ -430,7 +430,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
       });
 
       setTimeout(() => {
-         pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: `Traversing ${result.selectedPath.id} with ${result.selectedPath.techniques.join(', ')} and confidence scoring...` }, 500);
+         pushMessage({ sender: 'agent', identity: 'Attack Path Validation Agent', color: '#a855f7', type: 'text', content: `Traversing ${result.selectedPath.id} with ${result.selectedPath.techniques.join(', ')} and confidence scoring...` }, 500);
       }, 500);
 
       setTimeout(async () => {
@@ -438,7 +438,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
            blastNodeIds: result.blastRadius.map((asset) => asset.id),
          });
          setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_blast_radius' }]);
-         setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `Simulation Agent: PCS ${result.selectedPath.pcs.toFixed(1)}. ${result.blastRadius.length} blast-radius assets exposed.` }]);
+         setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `Attack Path Validation Agent: PCS ${result.selectedPath.pcs.toFixed(1)}. ${result.blastRadius.length} blast-radius assets exposed.` }]);
          setSharedState({ isSimulating: false, pcsScore: result.selectedPath.pcs });
 
          // Delegate to TruConfirm active validation
@@ -547,7 +547,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     onAction('simulate_bypass');
     
     setTimeout(() => {
-       pushMessage({ sender: 'agent', identity: 'Simulation Agent', color: '#a855f7', type: 'text', content: "Attempting alternate traversal via T1059 (Command and Scripting Interpreter)..." }, 1000);
+       pushMessage({ sender: 'agent', identity: 'Attack Path Validation Agent', color: '#a855f7', type: 'text', content: "Attempting alternate traversal via T1059 (Command and Scripting Interpreter)..." }, 1000);
     }, 500);
 
     setTimeout(() => {
@@ -721,7 +721,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container">
               <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
-                 <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>SIMULATION AGENT</span>
+                 <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>ATTACK PATH VALIDATION AGENT</span>
                  <h4>Lateral Movement Achieved</h4>
               </div>
               <p style={{fontSize:'12px', marginBottom:'12px'}}>
@@ -822,7 +822,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container" style={{borderColor: '#a855f7'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'8px'}}>
-                 <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>SIMULATION AGENT</span>
+                 <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>ATTACK PATH VALIDATION AGENT</span>
                  <h4 style={{color:'#a855f7'}}>Sandbox Result</h4>
               </div>
               <p style={{fontSize:'12px', marginBottom:'8px'}}>If we move the Customer Root Database to a different, isolated VPC:</p>
@@ -929,7 +929,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container" style={{borderColor: '#ef4444'}}>
               <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px'}}>
-                 <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>SIMULATION AGENT</span>
+                 <span style={{fontSize:'10px', background:'#a855f7', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>ATTACK PATH VALIDATION AGENT</span>
               </div>
               <h4 style={{color:'#ef4444'}}>Lateral Movement & Blast Radius</h4>
               <p style={{fontSize:'12px', marginTop:'8px'}}>
