@@ -193,7 +193,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
   const handleRunAssessment = () => {
     setChatPhase('scanning');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Simulate Attack Path" }]);
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Validate Attack Path" }]);
     onAction('simulate_path'); 
     setSharedState({ isSimulating: true });
     setIsTyping(true);
@@ -417,7 +417,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
   const handlePhase3Simulate = async () => {
     setChatPhase('phase3_simulating');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Simulate Prioritized Path & Enumerate Blast Radius" }]);
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Validate Prioritized Path & Enumerate Blast Radius" }]);
     setSharedState({ isSimulating: true });
     setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `System: Backend path traversal requested` }]);
     
@@ -543,7 +543,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
   const handlePhase3Bypass = () => {
     setChatPhase('phase3_bypassing');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Yes, simulate bypass" }]);
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Yes, validate bypass" }]);
     onAction('simulate_bypass');
     
     setTimeout(() => {
@@ -709,7 +709,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
          return (
            <div className="card-container text-right">
              <button className="btn-primary" onClick={handleRunAssessment} disabled={chatPhase !== 'selection'}>
-               Simulate Attack Path
+               Validate Attack Path
              </button>
              <button className="btn-outline" style={{marginTop:'8px', width:'100%', fontSize:'11px', borderColor:'#475569', color:'#94a3b8'}} onClick={handleBackToPathSelection} disabled={chatPhase !== 'selection'}>
                ↩ Choose a Different Path
@@ -920,7 +920,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                <div style={{fontWeight:'bold'}}>{phase3Analysis?.topPath?.owners?.join(', ') || '-'}</div>
              </div>
              <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Simulate} disabled={chatPhase !== 'phase3_selection'}>
-               Simulate Prioritized Path & Blast Radius
+               Validate Prioritized Path & Blast Radius
              </button>
            </div>
          );
@@ -982,7 +982,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                 Show Policy Preview
               </button>
               <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Bypass} disabled={chatPhase !== 'phase3_bypass'}>
-                Yes, simulate bypass
+                Yes, validate bypass
               </button>
            </div>
          );

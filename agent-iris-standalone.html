@@ -735,7 +735,7 @@ function selectPath1(pathId) {
   delay(() => agentBubble('Simulation Agent','#a855f7','av-purple','Simulation Agent engaging. I will execute a safe exploit validation simulating lateral movement along this path.'), 1000);
   setTimeout(() => {
     hideTyping();
-    appendMsg('agent','av-purple','','',`<div class="card card-dark"><button class="btn btn-white btn-full" onclick="runP1Sim()" id="p1-sim-btn">Simulate Attack Path</button><button class="btn btn-outline btn-full" style="margin-top:7px;font-size:11px;" onclick="goBackToChainSelection()">↩ Choose a Different Path</button></div>`);
+    appendMsg('agent','av-purple','','',`<div class="card card-dark"><button class="btn btn-white btn-full" onclick="runP1Sim()" id="p1-sim-btn">Validate Attack Path</button><button class="btn btn-outline btn-full" style="margin-top:7px;font-size:11px;" onclick="goBackToChainSelection()">↩ Choose a Different Path</button></div>`);
   }, 3200);
 }
 
@@ -743,7 +743,7 @@ function runP1Sim() {
   if(state.phase !== 'p1_selection' && state.phase !== 'p1_simulate_ready') return;
   state.phase = 'p1_scanning';
   document.getElementById('p1-sim-btn').disabled = true;
-  userBubble('Simulate Attack Path');
+  userBubble('Validate Attack Path');
   showTyping();
   setTimeout(() => {
     hideTyping();
@@ -906,7 +906,7 @@ function startPhase3() {
         <span class="ig-lbl">Choke Point</span><span class="ig-val">${a.chokePoints[0].label}</span>
         <span class="ig-lbl">Owners</span><span class="ig-val">${a.topPath.owners.join(', ')}</span>
       </div>
-      <button class="btn btn-white btn-full" onclick="runP3Sim()">Simulate Prioritized Path &amp; Blast Radius</button>
+      <button class="btn btn-white btn-full" onclick="runP3Sim()">Validate Prioritized Path &amp; Blast Radius</button>
     </div>`;
     appendMsg('agent','av-blue','','',html);
     state.phase = 'p3_selection';
@@ -916,7 +916,7 @@ function startPhase3() {
 function runP3Sim() {
   if(state.phase !== 'p3_selection') return;
   state.phase = 'p3_simulating';
-  userBubble('Simulate Prioritized Path & Blast Radius');
+  userBubble('Validate Prioritized Path & Blast Radius');
   logAudit('System: Backend path traversal requested');
   delay(() => { agentBubble('Simulation Agent','#a855f7','av-purple','Traversing path-UAT-AD with T1190 → T1505 → T1003 → T1550 and confidence scoring...'); }, 800);
   setTimeout(() => {
