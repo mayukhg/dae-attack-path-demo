@@ -749,7 +749,7 @@ function runP1Sim() {
     hideTyping();
     const html = `<div class="card card-dark">
       <div class="card-title"><span class="badge b-purple">Simulation Agent</span>Lateral Movement Achieved</div>
-      <p class="card-p">Simulation traversed successfully. Shadow API breached. PCS skyrocketed from 9.6 to <strong style="color:var(--red)">9.9</strong>.</p>
+      <p class="card-p">Attack path traversal was successful. Shadow API breached. PCS skyrocketed from 9.6 to <strong style="color:var(--red)">9.9</strong>.</p>
       <div class="btn-row" style="flex-direction:column;">
         <button class="btn btn-outline btn-full" onclick="viewP1Remediation()">View Remediation Options</button>
         <button class="btn btn-outline btn-full" style="font-size:11px;" onclick="goBackToChainSelection()">↩ Choose a Different Path</button>
@@ -924,7 +924,7 @@ function runP3Sim() {
     const s = MOCK.simulation;
     const html = `<div class="card card-red">
       <div class="card-title"><span class="badge b-purple">Simulation Agent</span>Lateral Movement &amp; Blast Radius</div>
-      <p class="card-p">Simulation traversed successfully (<strong>${s.selectedPath.techniques.join(' → ')}</strong>).</p>
+      <p class="card-p">Attack path traversal was successful (<strong>${s.selectedPath.techniques.join(' → ')}</strong>).</p>
       <p class="card-p" style="color:var(--red);font-weight:600;">
         Attacker reaches <strong>${s.blastRadius.length}</strong> blast-radius assets: <strong>${s.blastRadius.map(b=>b.label).join(', ')}</strong>.
       </p>

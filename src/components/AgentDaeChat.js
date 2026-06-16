@@ -725,7 +725,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <h4>Lateral Movement Achieved</h4>
               </div>
               <p style={{fontSize:'12px', marginBottom:'12px'}}>
-                Simulation traversed successfully. Shadow API breached. Path Criticality Score (PCS) skyrocketed from 9.6 to 9.9.
+                Attack path traversal was successful. Shadow API breached. Path Criticality Score (PCS) skyrocketed from 9.6 to 9.9.
               </p>
               <button className="btn-outline" style={{width:'100%'}} onClick={handleViewRemediation} disabled={chatPhase !== 'remediation_options'}>
                 View Remediation Options
@@ -933,7 +933,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </div>
               <h4 style={{color:'#ef4444'}}>Lateral Movement & Blast Radius</h4>
               <p style={{fontSize:'12px', marginTop:'8px'}}>
-                Simulation traversed successfully ({phase3Simulation?.selectedPath?.techniques?.join(' -> ') || 'techniques calculated by backend'}).
+                Attack path traversal was successful ({phase3Simulation?.selectedPath?.techniques?.join(' -> ') || 'techniques calculated by backend'}).
               </p>
               <p style={{fontSize:'12px', marginTop:'8px', fontWeight:'bold', color:'#fca5a5'}}>
                 If exploited, the attacker reaches {phase3Simulation?.blastRadius?.length || 0} directly modeled blast-radius asset(s): {(phase3Simulation?.blastRadius || []).map((asset) => asset.label).join(', ') || 'none'}.
