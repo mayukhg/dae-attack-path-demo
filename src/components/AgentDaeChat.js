@@ -127,7 +127,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
         const payload = JSON.parse(e.data);
         if (payload.error) {
           setMessages(prev => [...prev, { sender: 'agent', identity: 'Agent Iris', color: '#3b82f6', type: 'text', content: 'TruConfirm validation timed out. Proceeding with theoretical risk posture.' }]);
-          setChatPhase(isRevalidation ? 'phase3_bypass' : 'phase3_remediation_options');
+          setChatPhase(isRevalidation ? 'phase3_complete' : 'phase3_remediation_options');
           return;
         }
         setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `TruConfirm: Validation callback received for ${payload.path_id} — ${payload.results.length} node(s) assessed in ${payload.execution_duration_ms}ms` }]);
@@ -142,7 +142,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
           }
         ]);
         if (isRevalidation) {
-          setChatPhase('phase3_bypass');
+          setChatPhase('phase3_complete');
         } else {
           setChatPhase('phase3_remediation_options');
           setTimeout(() => {
@@ -151,13 +151,13 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
         }
       } catch (err) {
         console.error('Failed to parse validation event:', err);
-        setChatPhase(isRevalidation ? 'phase3_bypass' : 'phase3_remediation_options');
+        setChatPhase(isRevalidation ? 'phase3_complete' : 'phase3_remediation_options');
       }
     };
 
     es.onerror = () => {
       es.close();
-      setChatPhase(isRevalidation ? 'phase3_bypass' : 'phase3_remediation_options');
+      setChatPhase(isRevalidation ? 'phase3_complete' : 'phase3_remediation_options');
     };
 
     return () => es.close();
@@ -573,12 +573,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
              });
            } catch (err) {
              console.error('Re-validation delegate failed:', err);
-             setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_bypass_prompt' }]);
-             setChatPhase('phase3_bypass');
+             setChatPhase('phase3_complete');
            }
          } else {
-           setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_bypass_prompt' }]);
-           setChatPhase('phase3_bypass');
+           setChatPhase('phase3_complete');
          }
       }, 6000);
     } catch (error) {
@@ -1044,46 +1042,6 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
            </div>
          );
 
-      case 'phase3_bypass_prompt':
-         return (
-           <div className="card-container border-green">
-              <p style={{fontSize:'12px'}}>
-                Mitigation holds. Residual active paths: {phase3Remediation?.activePaths ?? '-'}. Residual PCS: {phase3Remediation?.pcsScore?.toFixed(1) ?? '-'}.
-                Would you like me to simulate what happens if the attacker attempts a bypass?
-              </p>
-              <div style={{fontSize:'11px', color:'#cbd5e1', marginTop:'8px'}}>
-                Approval gate: {phase3Remediation?.mitigation?.approvalGate || '-'}<br/>
-                Rollback: {phase3Remediation?.mitigation?.rollback || '-'}
-              </div>
-              <button className="btn-outline" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3PolicyPreview} disabled={!phase3Policy}>
-                Show Policy Preview
-              </button>
-              <button className="btn-primary" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Bypass} disabled={chatPhase !== 'phase3_bypass'}>
-                Yes, validate bypass
-              </button>
-           </div>
-         );
-
-      case 'phase3_complete':
-         return (
-           <div className="card-container">
-              <h4 style={{color:'#10b981'}}>No Viable Bypass Found</h4>
-              <p style={{fontSize:'12px', marginTop:'8px'}}>Secondary traversal blocked. Remediation holds. Total environment PCS stabilized at {phase3Remediation?.pcsScore?.toFixed(1) ?? 'the backend-computed residual score'}.</p>
-              {whatIfAnswer && <p style={{fontSize:'11px', color:'#94a3b8', marginTop:'8px'}}>Latest what-if: {whatIfAnswer}</p>}
-              <button className="btn-outline" style={{marginTop:'12px', width:'100%'}} onClick={handlePhase3Report} disabled={!phase3Report}>
-                Generate Agent Iris Report
-              </button>
-              {chatPhase === 'phase3_complete' && (
-                 <button className="btn-primary" style={{marginTop:'12px', width:'100%', background: '#14b8a6'}} onClick={handleGenerateReport}>
-                   Generate Executive Report
-                 </button>
-              )}
-              <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
-                ↩ Back to Main Menu
-              </button>
-           </div>
-         );
-
       case 'phase3_policy_preview':
          return (
            <div className="card-container" style={{borderColor:'#38bdf8'}}>
@@ -1194,12 +1152,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               );
             })}
             {rIsReval && allMitigated && (
-              <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
-                <button className="btn-primary" style={{ flex: 1, fontSize: '11px', padding: '8px 0' }} onClick={handlePhase3PolicyPreview} disabled={!phase3Policy}>Show Policy Preview</button>
-                <button className="btn-primary" style={{ flex: 1, fontSize: '11px', padding: '8px 0', background: '#14b8a6' }} onClick={() => {
-                  setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_bypass_prompt' }]);
-                  setChatPhase('phase3_bypass');
-                }}>Continue →</button>
+              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <button className="btn-primary" style={{ width: '100%', fontSize: '11px', padding: '8px 0' }} onClick={handlePhase3PolicyPreview} disabled={!phase3Policy}>Show Policy Preview</button>
+                <button className="btn-primary" style={{ width: '100%', fontSize: '11px', padding: '8px 0', background: '#14b8a6' }} onClick={handleGenerateReport}>Generate Executive Report</button>
+                <button className="btn-outline" style={{ width: '100%', fontSize: '11px', padding: '8px 0', borderColor: '#64748b', color: '#94a3b8' }} onClick={handleAgentReset}>↩ Back to Main Menu</button>
               </div>
             )}
           </div>

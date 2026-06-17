@@ -1029,9 +1029,10 @@ function renderValidationResults(results, isRevalidation, durationMs) {
 
   let actionsHtml = '';
   if(isRevalidation && allMitigated) {
-    actionsHtml = `<div class="btn-row">
-      <button class="btn btn-white" style="flex:1" onclick="showP3Policy()">Show Policy Preview</button>
-      <button class="btn btn-teal" style="flex:1" onclick="showBypassPrompt()">Continue →</button>
+    actionsHtml = `<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+      <button class="btn btn-white btn-full" onclick="showP3Policy()">Show Policy Preview</button>
+      <button class="btn btn-teal btn-full" onclick="generateP1Report()">Generate Executive Report</button>
+      <button class="btn btn-outline btn-full" style="border-color:#64748b;color:#94a3b8;" onclick="initIntro()">↩ Back to Main Menu</button>
     </div>`;
   }
 
@@ -1169,7 +1170,7 @@ function startRevalidation() {
   setTimeout(() => {
     clearInterval(tick2);
     renderValidationResults(MOCK.revalidationResults, true, 3110);
-    state.phase = 'p3_bypass';
+    state.phase = 'p3_complete';
     const mitData = state.phase3Mitigation;
     setTimeout(() => {
       agentBubble('Reporting Agent','#14b8a6','av-teal',
@@ -1179,25 +1180,6 @@ function startRevalidation() {
   }, 3200);
 }
 
-function showBypassPrompt() {
-  const mitData = state.phase3Mitigation;
-  const html = `<div class="card card-green">
-    <p class="card-p">
-      Mitigation holds. Residual active paths: <strong>${mitData?.activePaths ?? 1}</strong>. Residual PCS: <strong style="color:var(--green)">${mitData?.pcsScore?.toFixed(1) ?? '1.6'}</strong>.
-      Shall I simulate what happens if the attacker attempts a bypass?
-    </p>
-    <div style="font-size:11px;color:#cbd5e1;margin-top:8px;">
-      Approval gate: ${mitData?.mitigation?.approvalGate ?? '–'}<br/>
-      Rollback: ${mitData?.mitigation?.rollback ?? '–'}
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-outline" onclick="showP3Policy()">Show Policy Preview</button>
-      <button class="btn btn-white" onclick="simulateBypass()">Yes, simulate bypass</button>
-    </div>
-  </div>`;
-  appendMsg('agent','av-green','','',html);
-  document.getElementById('nlq-section').style.display = 'block';
-}
 
 function showP3Policy() {
   userBubble('Show policy preview and approval package');
@@ -1212,23 +1194,6 @@ function showP3Policy() {
   }, 800);
 }
 
-function simulateBypass() {
-  userBubble('Yes, simulate bypass');
-  state.phase = 'p3_bypassing';
-  delay(() => agentBubble('Attack Path Validation Agent','#a855f7','av-purple','Attempting alternate traversal via T1059 (Command and Scripting Interpreter)...'), 900);
-  setTimeout(() => delay(() => {
-    const html = `<div class="card card-dark">
-      <h4 style="color:var(--green);margin-bottom:8px;">No Viable Bypass Found</h4>
-      <p class="card-p">Secondary traversal blocked. Remediation holds. Environment PCS stabilized at <strong style="color:var(--green)">${state.phase3Mitigation?.pcsScore?.toFixed(1) ?? '1.6'}</strong>.</p>
-      <div class="btn-row">
-        <button class="btn btn-white btn-full" onclick="showP3Report()">Generate Agent Iris Report</button>
-        <button class="btn btn-outline btn-full" onclick="initIntro()">↩ Back to Main Menu</button>
-      </div>
-    </div>`;
-    appendMsg('agent','av-green','','',html);
-    state.phase = 'p3_complete';
-  }, 1400), 4000);
-}
 
 function showP3Report() {
   userBubble('Generate executive and technical report');
