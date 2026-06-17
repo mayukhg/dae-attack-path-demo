@@ -1054,8 +1054,7 @@ function renderValidationResults(results, isRevalidation, durationMs) {
       <button class="btn btn-teal" style="flex:1" onclick="showBypassPrompt()">Continue →</button>
     </div>`;
   } else if(!isRevalidation) {
-    actionsHtml = `<p style="font-size:11px;color:var(--muted);margin-top:10px;">All paths empirically confirmed. Select a mitigation option above ↑</p>
-    <button class="btn btn-outline btn-full" style="margin-top:8px;font-size:11px;" onclick="initIntro()">↩ Back to Main Menu</button>`;
+    actionsHtml = `<button class="btn btn-blue btn-full" style="margin-top:10px;" onclick="document.querySelector('.mit-card-0')?.scrollIntoView({behavior:'smooth'})">↑ View Ranked Mitigations</button>`;
   }
 
   const html = `<div class="card ${cardClass}" style="border-radius:10px;padding:14px;">

@@ -992,7 +992,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:'12px'}}>
+              <div className="phase3-remediation-scroll" style={{marginTop:'12px'}}>
                  <h5 style={{color:'#94a3b8', fontSize:'10px', marginBottom:'8px'}}>MULTI-REMEDIATION TRADE-OFFS</h5>
                  {(phase3Simulation?.mitigationOptions || phase3Analysis?.mitigationOptions || []).map((option, index) => (
                    <div key={option.id} className="mitigation-card mt-2" style={{cursor:'pointer', borderColor: index === 0 ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)'}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate(option)}>
@@ -1168,15 +1168,12 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </div>
             )}
             {!rIsReval && !allMitigated && (
-              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+              <div style={{ marginTop: '12px' }}>
                 <button className="btn-primary" style={{ width: '100%', fontSize: '11px', padding: '8px 0' }} onClick={() => {
                   const el = document.querySelector('.phase3-remediation-scroll');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }} disabled={chatPhase !== 'phase3_remediation_options'}>
-                  View Ranked Mitigations ↓
-                </button>
-                <button className="btn-outline" style={{ width: '100%', fontSize: '11px', padding: '8px 0', borderColor: '#64748b', color: '#cbd5e1' }} onClick={handleAgentReset}>
-                  ↩ Back to Main Menu
+                  ↑ View Ranked Mitigations
                 </button>
               </div>
             )}
