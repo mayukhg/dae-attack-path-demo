@@ -131,17 +131,23 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
           return;
         }
         setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `TruConfirm: Validation callback received for ${payload.path_id} — ${payload.results.length} node(s) assessed in ${payload.execution_duration_ms}ms` }]);
-        setMessages(prev => [...prev, {
-          sender: 'agent',
-          identity: isRevalidation ? 'Agent Iris · TruConfirm Re-Validation' : 'Agent Iris · TruConfirm Results',
-          color: isRevalidation ? '#10b981' : '#ef4444',
-          type: 'validation_results',
-          data: { ...payload, isRevalidation },
-        }]);
+        setMessages(prev => [
+          ...prev.filter(m => m.type !== 'validation_in_progress'),
+          {
+            sender: 'agent',
+            identity: isRevalidation ? 'Agent Iris · TruConfirm Re-Validation' : 'Agent Iris · TruConfirm Results',
+            color: isRevalidation ? '#10b981' : '#ef4444',
+            type: 'validation_results',
+            data: { ...payload, isRevalidation },
+          }
+        ]);
         if (isRevalidation) {
           setChatPhase('phase3_bypass');
         } else {
           setChatPhase('phase3_remediation_options');
+          setTimeout(() => {
+            setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_mitigation_choice' }]);
+          }, 800);
         }
       } catch (err) {
         console.error('Failed to parse validation event:', err);
@@ -992,20 +998,28 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                   </div>
                 ))}
               </div>
-              <div className="phase3-remediation-scroll" style={{marginTop:'12px'}}>
-                 <h5 style={{color:'#94a3b8', fontSize:'10px', marginBottom:'8px'}}>MULTI-REMEDIATION TRADE-OFFS</h5>
-                 {(phase3Simulation?.mitigationOptions || phase3Analysis?.mitigationOptions || []).map((option, index) => (
-                   <div key={option.id} className="mitigation-card mt-2" style={{cursor:'pointer', borderColor: index === 0 ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)'}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate(option)}>
-                     <div style={{fontWeight:600, color:index === 0 ? '#10b981' : '#93c5fd', fontSize:'11px'}}>Option {index + 1}: {option.label}</div>
-                     <div style={{fontSize:'10px', color:'#94a3b8', marginTop:'4px'}}>
-                       Closes {option.pathsClosed} path(s). PCS -{option.scoreReduction.toFixed(1)}. Deploy: {option.deployTime}. Downtime: {option.downtime}.
-                     </div>
-                     <div style={{fontSize:'10px', color:'#cbd5e1', marginTop:'4px'}}>
-                       Owner: {option.owner}. Approval: {option.approvalGate}.
-                     </div>
-                   </div>
-                 ))}
+              <div style={{marginTop:'12px', padding:'10px', background:'rgba(59,130,246,0.06)', border:'1px solid rgba(59,130,246,0.15)', borderRadius:'8px'}}>
+                <p style={{fontSize:'11px', color:'#94a3b8', margin:0}}>🔬 TruConfirm empirical validation in progress — awaiting exploit confirmation before mitigation options are surfaced.</p>
               </div>
+           </div>
+         );
+
+      case 'phase3_mitigation_choice':
+         return (
+           <div className="card-container phase3-remediation-scroll" style={{borderColor:'rgba(250,204,21,0.3)', background:'rgba(250,204,21,0.04)'}}>
+              <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}>
+                <span style={{fontSize:'10px', background:'#fb923c', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>REMEDIATION AGENT</span>
+                <h4 style={{margin:0, fontSize:'13px', color:'#facc15'}}>★ Ranked Mitigations</h4>
+              </div>
+              <p style={{fontSize:'11px', color:'#94a3b8', marginBottom:'12px'}}>All {(phase3Simulation?.mitigationOptions || phase3Analysis?.mitigationOptions || []).length} nodes empirically confirmed exploitable. Select a mitigation to deploy:</p>
+              {(phase3Simulation?.mitigationOptions || phase3Analysis?.mitigationOptions || []).map((option, index) => (
+                <div key={option.id} className="mitigation-card mt-2" style={{cursor: chatPhase === 'phase3_remediation_options' ? 'pointer' : 'default', borderColor: index === 0 ? 'rgba(16,185,129,0.3)' : 'rgba(59,130,246,0.3)', opacity: chatPhase === 'phase3_remediation_options' ? 1 : 0.5}} onClick={() => chatPhase === 'phase3_remediation_options' && handlePhase3Mitigate(option)}>
+                  <div style={{fontWeight:600, color:index === 0 ? '#10b981' : '#93c5fd', fontSize:'11px'}}>Option {index + 1}: {option.label}</div>
+                  <div style={{fontSize:'10px', color:'#94a3b8', marginTop:'4px'}}>Closes {option.pathsClosed} path(s) · PCS −{option.scoreReduction.toFixed(1)} · Deploy: {option.deployTime} · Downtime: {option.downtime}</div>
+                  <div style={{fontSize:'10px', color:'#cbd5e1', marginTop:'3px'}}>Owner: {option.owner} · Approval: {option.approvalGate}</div>
+                </div>
+              ))}
+              <button className="btn-outline" style={{marginTop:'12px', width:'100%', borderColor:'#64748b', color:'#94a3b8', fontSize:'11px'}} onClick={handleAgentReset}>↩ Back to Main Menu</button>
            </div>
          );
 
@@ -1165,16 +1179,6 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                   setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_bypass_prompt' }]);
                   setChatPhase('phase3_bypass');
                 }}>Continue →</button>
-              </div>
-            )}
-            {!rIsReval && !allMitigated && (
-              <div style={{ marginTop: '12px' }}>
-                <button className="btn-primary" style={{ width: '100%', fontSize: '11px', padding: '8px 0' }} onClick={() => {
-                  const el = document.querySelector('.phase3-remediation-scroll');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }} disabled={chatPhase !== 'phase3_remediation_options'}>
-                  ↑ View Ranked Mitigations
-                </button>
               </div>
             )}
           </div>

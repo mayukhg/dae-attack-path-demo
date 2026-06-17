@@ -923,14 +923,8 @@ function runP3Sim() {
             <strong class="${item.label.includes('Final') ? 'pcs-final' : ''}">${item.value} ${item.weight}</strong>
           </div>`).join('')}
       </div>
-      <div style="margin-top:14px;">
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Mitigation Trade-offs</div>
-        ${MOCK.analysis.mitigationOptions.map((opt,i)=>`
-          <div class="mit-card mit-card-${i}" onclick="deployP3Fix('${opt.id}','${opt.label.replace(/'/g,"\\'")}')">
-            <div style="font-weight:600;font-size:11px;" class="mit-title-${i}">Option ${i+1}: ${opt.label}</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:3px;">Closes ${opt.pathsClosed} path(s) · PCS −${opt.scoreReduction.toFixed(1)} · Deploy: ${opt.deployTime} · Downtime: ${opt.downtime}</div>
-            <div style="font-size:10px;color:#cbd5e1;margin-top:2px;">Owner: ${opt.owner} · ${opt.approvalGate}</div>
-          </div>`).join('')}
+      <div style="margin-top:12px;padding:10px;background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.15);border-radius:8px;">
+        <p style="font-size:11px;color:var(--muted);margin:0;">🔬 TruConfirm empirical validation in progress — awaiting exploit confirmation before mitigation options are surfaced.</p>
       </div>
     </div>`;
     appendMsg('agent','av-purple','Attack Path Validation Agent','#a855f7',html);
@@ -1053,8 +1047,6 @@ function renderValidationResults(results, isRevalidation, durationMs) {
       <button class="btn btn-white" style="flex:1" onclick="showP3Policy()">Show Policy Preview</button>
       <button class="btn btn-teal" style="flex:1" onclick="showBypassPrompt()">Continue →</button>
     </div>`;
-  } else if(!isRevalidation) {
-    actionsHtml = `<button class="btn btn-blue btn-full" style="margin-top:10px;" onclick="document.querySelector('.mit-card-0')?.scrollIntoView({behavior:'smooth'})">↑ View Ranked Mitigations</button>`;
   }
 
   const html = `<div class="card ${cardClass}" style="border-radius:10px;padding:14px;">
@@ -1070,7 +1062,42 @@ function renderValidationResults(results, isRevalidation, durationMs) {
   </div>`;
   const avCls = allMitigated ? 'av-green' : 'av-red';
   const identColor = allMitigated ? '#10b981' : '#ef4444';
+
+  // Remove the active validation progress card before appending results
+  const progCard = document.getElementById('val-prog-card');
+  if(progCard) {
+    const row = progCard.closest('.msg-row');
+    if(row && row.parentElement) row.parentElement.removeChild(row);
+    else progCard.parentElement?.removeChild(progCard);
+  }
+
   appendMsg('agent', avCls, identity, identColor, html);
+
+  // Auto-append ranked mitigations card 800ms after results (non-revalidation only)
+  if(!isRevalidation) {
+    setTimeout(() => renderRankedMitigations(), 800);
+  }
+}
+
+function renderRankedMitigations() {
+  const opts = MOCK.analysis.mitigationOptions;
+  const mitigationsHtml = opts.map((opt,i)=>`
+    <div class="mit-card mit-card-${i}" onclick="deployP3Fix('${opt.id}','${opt.label.replace(/'/g,"\\'")}')">
+      <div style="font-weight:600;font-size:11px;" class="mit-title-${i}">Option ${i+1}: ${opt.label}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:3px;">Closes ${opt.pathsClosed} path(s) · PCS −${opt.scoreReduction.toFixed(1)} · Deploy: ${opt.deployTime} · Downtime: ${opt.downtime}</div>
+      <div style="font-size:10px;color:#cbd5e1;margin-top:2px;">Owner: ${opt.owner} · ${opt.approvalGate}</div>
+    </div>`).join('');
+  const html = `<div class="card" style="border-color:rgba(250,204,21,0.3);background:rgba(250,204,21,0.04);border-radius:10px;padding:14px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span style="font-size:10px;background:#fb923c;padding:2px 6px;border-radius:4px;color:white;font-weight:bold;">REMEDIATION AGENT</span>
+      <strong style="font-size:13px;color:#facc15;">★ Ranked Mitigations</strong>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:12px;">All ${opts.length} nodes empirically confirmed exploitable. Select a mitigation to deploy:</p>
+    ${mitigationsHtml}
+    <button class="btn btn-outline btn-full" style="margin-top:12px;border-color:#64748b;color:#94a3b8;font-size:11px;" onclick="initIntro()">↩ Back to Main Menu</button>
+  </div>`;
+  appendMsg('agent','av-orange','Remediation Agent','#fb923c',html);
+  logAudit('Remediation Agent: Ranked mitigations surfaced. Awaiting selection.');
 }
 
 function deployP3Fix(mitigationId, mitigationLabel) {
