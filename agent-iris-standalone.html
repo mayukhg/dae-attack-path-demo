@@ -831,7 +831,7 @@ function startPhase2() {
   state.phase = 'p2_discovery';
   setPhaseBadge('Phase 2');
   setPhaseSub('AI Agent Posture');
-  userBubble('Begin Phase 2: AI Agent Posture Validation');
+  userBubble('AI Agent Posture Validation');
   delay(() => agentBubble('Mapping Agent','#3b82f6','av-blue','Shifting focus to your AI supply chain. Building dynamic inventory of AI-based applications...'), 1000);
   setTimeout(() => delay(() => agentBubble('Mapping Agent','#3b82f6','av-blue','I have mapped the Finance AI architecture. I am flagging this agent is 🌐 <strong>Internet Exposed</strong> and has active bindings to 🔒 <strong>Sensitive Customer Data</strong>.'), 5000), 2200);
   setTimeout(() => {
@@ -884,7 +884,7 @@ function startPhase3() {
   setPhaseBadge('Phase 3');
   setPhaseSub('Advanced Command Center');
   showAuditSection();
-  userBubble('Begin Phase 3: Advanced Command Center');
+  userBubble('Advanced Command Center');
   delay(() => { agentBubble('Mapping Agent','#3b82f6','av-blue','Executing advanced parallel topography scan...'); logAudit('Mapping Agent: Advanced topography scan initiated'); }, 900);
   setTimeout(() => {
     state.phase3Analysis = MOCK.analysis;

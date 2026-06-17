@@ -330,7 +330,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
   const handleStartPhase2 = () => {
     setChatPhase('phase2_discovery');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Begin Phase 2: AI Agent Posture Validation" }]);
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "AI Agent Posture Validation" }]);
     
     setTimeout(() => {
         pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "I am now shifting focus to your AI supply chain. I am now building a dynamic inventory of your AI based applications to understand what AI related implementations your teams are doing" }, 1500);
@@ -387,7 +387,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
   // --- Phase 3 Flows ---
   const handleStartPhase3 = async () => {
     setChatPhase('phase3_discovery');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Begin Phase 3: Advanced Command Center" }]);
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Advanced Command Center" }]);
     
     setTimeout(() => {
         pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "Executing advanced parallel topography scan..." }, 1000);
