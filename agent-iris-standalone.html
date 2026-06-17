@@ -409,11 +409,6 @@ function setPhaseSub(text) { $phaseSub().textContent = text; }
 
 function logAudit(text) {
   state.auditLogs.push({ time: ts(), text });
-  const entry = document.createElement('div');
-  entry.className = 'audit-entry';
-  entry.innerHTML = `<span class="audit-time">${ts()}</span><span>${text}</span>`;
-  $audit().appendChild(entry);
-  $audit().scrollTop = $audit().scrollHeight;
 }
 
 
@@ -1131,7 +1126,7 @@ function startRevalidation() {
 
   let elapsed = 0;
   const timerId2 = 'val-elapsed-2';
-  const html = `<div class="val-prog">
+  const html = `<div class="val-prog" id="val-prog-card">
     <div class="val-prog-hdr">
       <div class="val-prog-title">
         <div class="spinner"></div>
