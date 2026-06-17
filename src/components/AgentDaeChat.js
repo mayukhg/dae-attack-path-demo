@@ -1249,27 +1249,6 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
 
       {chatPhase.startsWith('phase3') && (
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', background: 'rgba(15,23,42,0.95)', zIndex: 10 }}>
-           <div 
-             style={{ padding: '8px 16px', fontSize: '11px', color: '#94a3b8', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-             onClick={() => setShowAudit(!showAudit)}
-           >
-             <span style={{fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '1px'}}>Audit Trail &amp; Compliance Log</span>
-             <span>{showAudit ? '▼' : '▲'}</span>
-           </div>
-           
-           {showAudit && (
-             <div style={{ padding: '0 16px 16px 16px', maxHeight: '150px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {auditLogs.length === 0 ? <div style={{fontSize:'11px', color:'#64748b'}}>No actions logged yet.</div> : 
-                 auditLogs.map((log, i) => (
-                   <div key={i} style={{fontSize: '11px', color: '#cbd5e1', display: 'flex', gap: '12px', borderLeft: '2px solid #3b82f6', paddingLeft: '8px'}}>
-                     <span style={{color: '#64748b', minWidth: '60px'}}>{log.time}</span>
-                     <span>{log.text}</span>
-                   </div>
-                 ))
-                }
-             </div>
-           )}
-
            {chatPhase === 'phase3_complete' && (
              <form onSubmit={handlePhase3NLQ} style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                 <input name="q" placeholder="Ask a hypothetical scenario..." style={{ width: '100%', padding: '12px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', borderRadius: '8px', fontSize: '12px' }} autoComplete="off" />

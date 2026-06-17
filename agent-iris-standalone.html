@@ -250,11 +250,6 @@ pre.code{background:#0f172a;padding:10px;border-radius:6px;font-size:9px;color:#
     <div id="chat-messages"></div>
 
     <div id="audit-section" style="display:none;">
-      <div class="audit-toggle" onclick="toggleAudit()">
-        <strong>Audit Trail &amp; Compliance Log</strong>
-        <span id="audit-arrow">▲</span>
-      </div>
-      <div id="audit-log" style="display:none;"></div>
       <div id="nlq-section" style="display:none;">
         <form id="nlq-form" onsubmit="handleNLQ(event)">
           <input id="nlq-input" name="q" placeholder="Ask a hypothetical scenario..." autocomplete="off" />
@@ -421,15 +416,6 @@ function logAudit(text) {
   $audit().scrollTop = $audit().scrollHeight;
 }
 
-function showAuditSection() {
-  $auditSec().style.display = 'block';
-}
-
-function toggleAudit() {
-  state.auditOpen = !state.auditOpen;
-  document.getElementById('audit-log').style.display = state.auditOpen ? 'flex' : 'none';
-  document.getElementById('audit-arrow').textContent = state.auditOpen ? '▼' : '▲';
-}
 
 /* ═══════════════════════════════════════════════════════
    MESSAGE RENDERING
@@ -658,7 +644,7 @@ function startPhase1() {
   state.phase = 'p1_discovery';
   setPhaseBadge('Attack Path Discovery & Validation');
   setPhaseSub('Discovery · Validation · Remediation');
-  showAuditSection();
+
   userBubble('Attack Path Discovery & Validation');
   delay(() => agentBubble('Mapping Agent','#3b82f6','av-blue','Validating your topology, hold tight...'), 900);
   setTimeout(() => delay(() => {
@@ -869,7 +855,7 @@ function startPhase3() {
   state.phase = 'p3_discovery';
   setPhaseBadge('Phase 3');
   setPhaseSub('Advanced Command Center');
-  showAuditSection();
+
   userBubble('Advanced Command Center');
   delay(() => { agentBubble('Mapping Agent','#3b82f6','av-blue','Executing advanced parallel topography scan...'); logAudit('Mapping Agent: Advanced topography scan initiated'); }, 900);
   setTimeout(() => {
