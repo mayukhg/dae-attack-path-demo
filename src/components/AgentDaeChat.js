@@ -146,7 +146,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
         } else {
           setChatPhase('phase3_remediation_options');
           setTimeout(() => {
-            setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_mitigation_choice' }]);
+            setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_mitigation_consent' }]);
           }, 800);
         }
       } catch (err) {
@@ -1001,6 +1001,27 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               <div style={{marginTop:'12px', padding:'10px', background:'rgba(59,130,246,0.06)', border:'1px solid rgba(59,130,246,0.15)', borderRadius:'8px'}}>
                 <p style={{fontSize:'11px', color:'#94a3b8', margin:0}}>🔬 TruConfirm empirical validation in progress — awaiting exploit confirmation before mitigation options are surfaced.</p>
               </div>
+           </div>
+         );
+
+      case 'phase3_mitigation_consent':
+         return (
+           <div className="card-container" style={{borderColor:'rgba(250,204,21,0.25)', background:'rgba(250,204,21,0.04)'}}>
+              <div style={{display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px'}}>
+                <span style={{fontSize:'10px', background:'#fb923c', padding:'2px 6px', borderRadius:'4px', color:'white', fontWeight:'bold'}}>REMEDIATION AGENT</span>
+                <span style={{fontSize:'12px', color:'#facc15', fontWeight:600}}>Exploit confirmation complete</span>
+              </div>
+              <p style={{fontSize:'11px', color:'#94a3b8', marginBottom:'12px', lineHeight:1.6}}>
+                All {(phase3Simulation?.mitigationOptions || phase3Analysis?.mitigationOptions || []).length} nodes empirically validated as exploitable. Ranked mitigation options are ready. Would you like to review them?
+              </p>
+              <button className="btn-primary" style={{width:'100%', fontSize:'12px', padding:'9px 0'}} onClick={() => {
+                setMessages(prev => [...prev,
+                  { sender: 'user', type: 'text', content: 'View Remediation Options' },
+                  { sender: 'agent', type: 'phase3_mitigation_choice' }
+                ]);
+              }} disabled={chatPhase !== 'phase3_remediation_options'}>
+                View Remediation Options →
+              </button>
            </div>
          );
 
