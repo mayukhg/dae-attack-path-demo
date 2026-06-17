@@ -515,9 +515,8 @@ function initIntro() {
         </ul>
         <p style="margin-bottom:12px;font-size:12px;font-weight:bold;color:var(--gold);">Which agentic workflow would you like to execute?</p>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <button class="btn btn-white btn-full" onclick="startPhase1()">Critical Attack Path Discovery</button>
+          <button class="btn btn-white btn-full" onclick="startPhase1()">Attack Path Discovery &amp; Validation</button>
           <button class="btn btn-full" style="background:#10b981;color:white;" onclick="startPhase2()">AI Agent Posture Validation</button>
-          <button class="btn btn-full" style="background:#eab308;color:black;" onclick="startPhase3()">Advanced Command Center</button>
           <button class="btn btn-outline btn-full" style="border-color:#3b82f6;color:#93c5fd;font-size:11px;" onclick="openWalkthrough()">🗺️ View Agent Walkthrough</button>
         </div>
       </div>`;
@@ -562,18 +561,18 @@ const walkthroughSteps = [
       </div>`,
   },
   {
-    title: 'Critical Attack Path Discovery',
-    subtitle: 'End-to-end autonomous remediation in under a minute',
+    title: 'Attack Path Discovery & Validation',
+    subtitle: 'Live backend · TruConfirm proof · ranked mitigations · bypass test',
     color: '#3b82f6',
     body: `<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
-      ${[['🔍','Topology Scan','Agent maps your full asset graph'],['🎯','Path Ranking','3 critical paths scored by PCS'],['⚡','Lateral Movement Simulation','Safe exploit traversal along chosen path'],['💥','Choke Point Identified','Single node whose fix closes multiple paths'],['✅','Mitigation Deployed','Virtual WAF + MFA circuit breaker applied'],['📄','Executive Report','PCS drop, business impact, timeline']].map(([ic,s,d],i)=>`
+      ${[['🔍','Topology Scan','Mapping Agent builds your full asset graph via backend API'],['🎯','Path Selection','You choose from 3 ranked attack chains (3–4 hops, PCS scored)'],['⚡','Path Traversal','Attack Path Validation Agent traverses with real MITRE techniques'],['🔬','TruConfirm Validation','Empirical proof per node — SHA-256 hash, OAST callback, pattern output'],['⚖️','Ranked Mitigations','Multiple options with deploy time, downtime, paths closed, approval gate'],['🔄','Bypass Test','Attacker retries alternate traversal after fix — blocked'],['📄','Executive Report','Backend-generated with headline, business impact & rollback plan']].map(([ic,s,d],i)=>`
       <div style="display:flex;align-items:flex-start;gap:10px;">
         <div style="width:22px;height:22px;border-radius:50%;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">${i+1}</div>
         <div><div style="font-size:11px;font-weight:600;color:#e2e8f0;">${ic} ${s}</div><div style="font-size:10px;color:#64748b;">${d}</div></div>
       </div>`).join('')}
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;">
-      ${['PCS Score','Blast Radius','Terraform Policy-as-Code','What-If Sandbox'].map(t=>`<span style="font-size:10px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:2px 8px;color:#93c5fd;">${t}</span>`).join('')}
+      ${['Cryptographic Exploit Proof','Blast Radius','MITRE Technique Chain','Terraform Policy-as-Code','Audit Trail'].map(t=>`<span style="font-size:10px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);border-radius:4px;padding:2px 8px;color:#93c5fd;">${t}</span>`).join('')}
     </div>`,
   },
   {
@@ -589,21 +588,6 @@ const walkthroughSteps = [
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:6px;">
       ${['AI Inventory Map','Prompt Injection Proof','Auto GitHub PR','Zero-friction Dev Handoff'].map(t=>`<span style="font-size:10px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);border-radius:4px;padding:2px 8px;color:#6ee7b7;">${t}</span>`).join('')}
-    </div>`,
-  },
-  {
-    title: 'Advanced Command Center',
-    subtitle: 'Multi-path analysis with empirical validation',
-    color: '#eab308',
-    body: `<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
-      ${[['📡','Multi-Path API Analysis','Backend ranks all viable paths by PCS with MITRE tags'],['💥','Blast Radius Enumerated','Hidden assets exposed by simulated traversal'],['🔬','TruConfirm Validation','Empirical exploit proof — SHA-256 hash or OAST callback'],['⚖️','Ranked Mitigations','Trade-off analysis: deploy time, downtime, paths closed'],['📜','Policy-as-Code Preview','Terraform/OPA policy ready for GitOps merge'],['🔄','Bypass Simulation','Attacker attempts alternate traversal — blocked']].map(([ic,s,d],i)=>`
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <div style="width:22px;height:22px;border-radius:50%;background:rgba(234,179,8,.15);border:1px solid rgba(234,179,8,.3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;">${i+1}</div>
-        <div><div style="font-size:11px;font-weight:600;color:#e2e8f0;">${ic} ${s}</div><div style="font-size:10px;color:#64748b;">${d}</div></div>
-      </div>`).join('')}
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;">
-      ${['Cryptographic Exploit Proof','MITRE Technique Chain','Audit Trail','Policy Preview'].map(t=>`<span style="font-size:10px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.25);border-radius:4px;padding:2px 8px;color:#fde047;">${t}</span>`).join('')}
     </div>`,
   },
   {
@@ -624,7 +608,7 @@ const walkthroughSteps = [
     color: '#10b981',
     body: `<div style="text-align:center;margin-bottom:16px;"><div style="font-size:48px;">🤖</div><p style="font-size:12px;color:#cbd5e1;line-height:1.6;margin-top:12px;">Select a demonstration phase to begin. Each phase is self-contained and guided — Agent Iris will narrate every action in real time.</p></div>
     <div style="display:flex;flex-direction:column;gap:8px;">
-      ${[['Critical Attack Path Discovery','#3b82f6','Traditional infra · 3 attack chains · PCS remediation'],['AI Agent Posture Validation','#10b981','AI supply chain · prompt injection · auto PR'],['Advanced Command Center','#eab308','Multi-path · TruConfirm · blast radius · policy-as-code']].map(([l,c,d])=>`
+      ${[['Attack Path Discovery & Validation','#3b82f6','3 attack chains · TruConfirm proof · ranked mitigations · bypass test'],['AI Agent Posture Validation','#10b981','AI supply chain · prompt injection · auto PR']].map(([l,c,d])=>`
       <div style="background:${c}10;border:1px solid ${c}30;border-radius:8px;padding:10px;text-align:left;">
         <div style="font-size:11px;font-weight:700;color:${c};">${l}</div>
         <div style="font-size:10px;color:#64748b;margin-top:2px;">${d}</div>
@@ -672,9 +656,10 @@ function wtBack() {
 ═══════════════════════════════════════════════════════ */
 function startPhase1() {
   state.phase = 'p1_discovery';
-  setPhaseBadge('Phase 1');
-  setPhaseSub('Critical Path Discovery');
-  userBubble('Yes, start critical attack path discovery');
+  setPhaseBadge('Attack Path Discovery & Validation');
+  setPhaseSub('Discovery · Validation · Remediation');
+  showAuditSection();
+  userBubble('Attack Path Discovery & Validation');
   delay(() => agentBubble('Mapping Agent','#3b82f6','av-blue','Validating your topology, hold tight...'), 900);
   setTimeout(() => delay(() => {
     agentBubble('Mapping Agent','#3b82f6','av-blue',"I've analyzed <strong>3 critical attack paths</strong> converging on your core assets. Please select a path to proceed.");
@@ -735,7 +720,8 @@ function selectPath1(pathId) {
   delay(() => agentBubble('Attack Path Validation Agent','#a855f7','av-purple','Attack Path Validation Agent engaging. I will execute a safe exploit validation simulating lateral movement along this path.'), 1000);
   setTimeout(() => {
     hideTyping();
-    appendMsg('agent','av-purple','','',`<div class="card card-dark"><button class="btn btn-white btn-full" onclick="runP1Sim()" id="p1-sim-btn">Validate Attack Path</button><button class="btn btn-outline btn-full" style="margin-top:7px;font-size:11px;" onclick="goBackToChainSelection()">↩ Choose a Different Path</button></div>`);
+    state.phase = 'p3_selection';
+    appendMsg('agent','av-purple','','',`<div class="card card-dark"><button class="btn btn-white btn-full" onclick="runP3Sim()" id="p1-sim-btn">Validate Attack Path</button><button class="btn btn-outline btn-full" style="margin-top:7px;font-size:11px;" onclick="goBackToChainSelection()">↩ Choose a Different Path</button></div>`);
   }, 3200);
 }
 
@@ -816,8 +802,8 @@ function generateP1Report() {
         <span class="ig-lbl">Time Elapsed</span><span class="ig-val">Autonomous / Sub-Minute</span>
       </div>
       <div class="btn-row">
-        <button class="btn btn-white btn-full" onclick="startPhase2()">AI Agent Posture Validation</button>
-        <button class="btn btn-full" style="background:#eab308;color:black;" onclick="startPhase3()">Advanced Command Center</button>
+        <button class="btn btn-full" style="background:#10b981;color:white;" onclick="startPhase2()">AI Agent Posture Validation</button>
+        <button class="btn btn-outline btn-full" onclick="initIntro()">↩ Back to Main Menu</button>
       </div>
     </div>`;
     appendMsg('agent','av-teal','Reporting Agent','#14b8a6',html);

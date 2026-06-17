@@ -157,23 +157,29 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     return () => es.close();
   }, [validationPathId, chatPhase]);
 
-  const handleStartScoping = () => {
+  const handleStartScoping = async () => {
     setChatPhase('discovery');
-    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Yes, start critical attack path discovery" }]);
-    
+    setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Attack Path Discovery & Validation" }]);
+
     setTimeout(() => {
         pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "Validating your topology, hold tight..." }, 1000);
         onAction('init_map');
     }, 1500);
 
+    // Prefetch backend analysis so the simulate call has context ready
+    try {
+      const result = await callAttackPathApi({ method: 'GET' });
+      setPhase3Analysis(result.analysis);
+    } catch (_) { /* fallback silently — simulate call still works */ }
+
     setTimeout(() => {
-        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "You're off to a great start! I've analyzed 3 critical attack paths converging on your core assets. Please select an attack path to proceed further with the flow" }, 1500);
+        pushMessage({ sender: 'agent', identity: 'Mapping Agent', color: '#3b82f6', type: 'text', content: "I've analyzed 3 critical attack paths converging on your core assets. Select a path to proceed with empirical validation." }, 1500);
     }, 6000);
 
     setTimeout(() => {
         setMessages(prev => [...prev, { sender: 'agent', type: 'path_selection', data: mockPaths }]);
         setChatPhase('selection');
-        setSharedState({ activePaths: 3, pcsScore: 0 }); // Update global metrics
+        setSharedState({ activePaths: 3, pcsScore: 0 });
     }, 8500);
   };
 
@@ -191,19 +197,52 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
     }, 2500);
   };
 
-  const handleRunAssessment = () => {
-    setChatPhase('scanning');
+  const handleRunAssessment = async () => {
+    setChatPhase('phase3_simulating');
     setMessages(prev => [...prev, { sender: 'user', type: 'text', content: "Validate Attack Path" }]);
-    onAction('simulate_path'); 
     setSharedState({ isSimulating: true });
-    setIsTyping(true);
-    
-    setTimeout(() => {
-      setIsTyping(false);
-      setMessages(prev => [...prev, { sender: 'agent', type: 'scanning_results', pathId: selectedPath }]);
-      setChatPhase('remediation_options');
-      setSharedState({ isSimulating: false, pcsScore: 9.9 });
-    }, 4500);
+    setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: 'System: Backend path traversal requested' }]);
+
+    try {
+      const result = await callAttackPathApi({ body: { intent: 'simulate', pathId: selectedPath } });
+      setPhase3Simulation(result);
+      onAction('simulate_phase3_path', { edgeIds: result.selectedPath.edgeIds, nodeIds: result.selectedPath.nodeIds });
+
+      setTimeout(() => {
+        pushMessage({ sender: 'agent', identity: 'Attack Path Validation Agent', color: '#a855f7', type: 'text',
+          content: `Traversing ${result.selectedPath.id} with ${result.selectedPath.techniques.join(', ')} and confidence scoring...` }, 500);
+      }, 500);
+
+      setTimeout(async () => {
+        onAction('simulate_blast_radius', { blastNodeIds: result.blastRadius.map(a => a.id) });
+        setMessages(prev => [...prev, { sender: 'agent', type: 'phase3_blast_radius' }]);
+        setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `Attack Path Validation Agent: PCS ${result.selectedPath.pcs.toFixed(1)}. ${result.blastRadius.length} blast-radius assets exposed.` }]);
+        setSharedState({ isSimulating: false, pcsScore: result.selectedPath.pcs });
+
+        const targets = result.validationTargets || [];
+        if (targets.length > 0) {
+          const pathId = result.selectedPath.id;
+          setValidationTargets(targets);
+          setValidationPathId(pathId);
+          setChatPhase('phase3_validating');
+          setMessages(prev => [...prev, { sender: 'agent', identity: 'Agent Iris · TruConfirm', color: '#3b82f6', type: 'validation_in_progress', data: { targets, pathId } }]);
+          setAuditLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text: `Agent Iris: Delegated ${targets.length} node(s) to TruConfirm for empirical validation. Path: ${pathId}` }]);
+          try {
+            await fetch('/api/validation-delegate', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ path_id: pathId, tenant_id: 'default', targets, callback_url: `${window.location.origin}/api/validation-callback` }) });
+          } catch (err) {
+            console.error('Validation delegate failed:', err);
+            setChatPhase('phase3_remediation_options');
+          }
+        } else {
+          setChatPhase('phase3_remediation_options');
+        }
+      }, 5500);
+    } catch (error) {
+      setSharedState({ isSimulating: false });
+      setMessages(prev => [...prev, { sender: 'agent', type: 'text', content: `Validation failed: ${error.message}` }]);
+      setChatPhase('selection');
+    }
   };
 
   const handleViewRemediation = () => {
@@ -626,13 +665,10 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               </p>
               <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                  <button className="btn-primary" style={{width:'100%'}} onClick={handleStartScoping} disabled={chatPhase !== 'intro'}>
-                   Critical Attack Path Discovery
+                   Attack Path Discovery &amp; Validation
                  </button>
                  <button className="btn-primary" style={{width:'100%', background: '#10b981'}} onClick={handleStartPhase2} disabled={chatPhase !== 'intro'}>
                    AI Agent Posture Validation
-                 </button>
-                 <button className="btn-primary" style={{width:'100%', background: '#eab308'}} onClick={handleStartPhase3} disabled={chatPhase !== 'intro'}>
-                   Advanced Command Center
                  </button>
                  <button
                    className="btn-outline"
@@ -665,7 +701,16 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
               { icon: '🔑', name: 'Identity Prov', tech: 'T1078' },
               { icon: '👑', name: 'AD Core', tech: 'T1550', crown: true },
             ]
-          }
+          },
+          {
+            pathId: 'Path 1: UAT Dev -> Shadow API', nexus: 'API BOLA Abuse', pcs: '9.6', hops: 4,
+            chain: [
+              { icon: '💻', name: 'UAT Dev Server' },
+              { icon: '🔓', name: 'Shadow API', tech: 'T1190' },
+              { icon: '💥', name: 'BOLA Exploit', tech: 'T1212' },
+              { icon: '🗄️', name: 'Customer DB', tech: 'T1530', crown: true },
+            ]
+          },
         ];
         return (
           <div className="card-container">
@@ -708,7 +753,7 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
       case 'assessment_action':
          return (
            <div className="card-container text-right">
-             <button className="btn-primary" onClick={handleRunAssessment} disabled={chatPhase !== 'selection'}>
+             <button className="btn-primary" onClick={handleRunAssessment} disabled={chatPhase !== 'selection' && chatPhase !== 'phase3_simulating'}>
                Validate Attack Path
              </button>
              <button className="btn-outline" style={{marginTop:'8px', width:'100%', fontSize:'11px', borderColor:'#475569', color:'#94a3b8'}} onClick={handleBackToPathSelection} disabled={chatPhase !== 'selection'}>
@@ -851,11 +896,8 @@ export default function AgentDaeChat({ onAction, setSharedState }) {
                  <div style={{fontWeight:'bold', color:'white'}}>Autonomous / Sub-Minute</div>
               </div>
               <div style={{marginTop: '16px'}}>
-                 <button className="btn-primary" style={{width:'100%'}} onClick={handleStartPhase2}>
+                 <button className="btn-primary" style={{width:'100%', background: '#10b981'}} onClick={handleStartPhase2}>
                    AI Agent Posture Validation
-                 </button>
-                 <button className="btn-primary" style={{marginTop:'8px', width:'100%', background: '#eab308'}} onClick={handleStartPhase3}>
-                   Advanced Command Center
                  </button>
                  <button className="btn-outline" style={{marginTop:'8px', width:'100%', borderColor: '#64748b', color: '#cbd5e1'}} onClick={handleAgentReset}>
                    ↩ Back to Main Menu
